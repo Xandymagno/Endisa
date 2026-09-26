@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dashboard de produção de supressão vegetal conectado ao Google Sheets">
+  <title>Dashboard de Produção</title>
+
+  <!-- Fontes e estilos -->
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ===== OVERLAY DE CARREGAMENTO =====
+       Aparece enquanto a API responde e some ao carregar -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-caixa">
+      <div class="loading-spinner"></div>
+      <p class="loading-texto">Carregando dados...</p>
+      <small class="loading-sub">Buscando informações no Aplicativo</small>
+    </div>
+  </div>
+
+  <!-- ===== CABEÇALHO ===== -->
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <img src="assets/img/logo_nome.png" alt="Logo da empresa" class="logo-img">
+    <div class="cabecalho-textos">
+      <h1>Dashboard de Produtividade</h1>
+      <p class="cabecalho-subtitulo">Acompanhamento de produção em km</p>
+    </div>
+  </div>
+</header>
+
+  <main class="container">
+
+    <!-- ===== BARRA DE FILTROS GLOBAIS =====
+         OS, Encarregado e Polo agora são MULTISELECT:
+         dropdowns com checkboxes, múltipla seleção.
+         Nada marcado = Todos. Datas seguem como estão. -->
+    <section class="filtros" aria-label="Filtros do dashboard">
+
+      <div class="filtros__item">
+        <span>OS</span>
+        <div class="multiselect" data-filtro="os">
+          <button type="button" class="ms-toggle">Todas</button>
+          <div class="ms-menu"></div>
+        </div>
+      </div>
+
+      <div class="filtros__item">
+        <span>Encarregado</span>
+        <div class="multiselect" data-filtro="encarregado">
+          <button type="button" class="ms-toggle">Todos</button>
+          <div class="ms-menu"></div>
+        </div>
+      </div>
+
+      <div class="filtros__item">
+        <span>Polo</span>
+        <div class="multiselect" data-filtro="polo">
+          <button type="button" class="ms-toggle">Todos</button>
+          <div class="ms-menu"></div>
+        </div>
+      </div>
+
+      <label class="filtros__item filtros__item--periodo">
+        <span>Período</span>
+        <span class="filtros__periodo-campos">
+          <input type="date" id="filtro-inicio" class="input" title="Data inicial">
+          <span class="filtros__ate">até</span>
+          <input type="date" id="filtro-fim" class="input" title="Data final">
+        </span>
+      </label>
+
+      <button class="btn" id="btn-aplicar-filtros">Aplicar</button>
+    </section>
+
+    <!-- ===== CARDS DE KPI (TELA PRINCIPAL) ===== -->
+    <section class="kpis" aria-label="Indicadores principais">
+
+      <!-- KPI 1: Produção Geral -->
+      <article class="card card--kpi">
+        <h2 class="card__titulo">Produção Geral</h2>
+        <div class="kpi__tipos">
+          <div class="kpi__tipo">
+            <span class="kpi__icone" title="Manual">🪓</span>
+            <span class="kpi__rotulo">Manual</span>
+            <p class="kpi__valor" id="kpi-prod-manual">—</p>
+            <small class="kpi__unidade">km</small>
+          </div>
+          <div class="kpi__tipo">
+            <span class="kpi__icone" title="Mecanizada">🚜</span>
+            <span class="kpi__rotulo">Mecanizada</span>
+            <p class="kpi__valor" id="kpi-prod-mecanizada">—</p>
+            <small class="kpi__unidade">km</small>
+          </div>
+        </div>
+      </article>
+
+      <!-- KPI 2: Produção Diária Geral -->
+      <article class="card card--kpi">
+        <h2 class="card__titulo">Produção Diária Geral</h2>
+        <div class="kpi__tipos">
+          <div class="kpi__tipo">
+            <span class="kpi__icone" title="Manual">🪓</span>
+            <span class="kpi__rotulo">Manual</span>
+            <p class="kpi__valor" id="kpi-diaria-manual">—</p>
+            <small class="kpi__unidade">km/dia</small>
+          </div>
+          <div class="kpi__tipo">
+            <span class="kpi__icone" title="Mecanizada">🚜</span>
+            <span class="kpi__rotulo">Mecanizada</span>
+            <p class="kpi__valor" id="kpi-diaria-mecanizada">—</p>
+            <small class="kpi__unidade">km/dia</small>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== KPI 3: PRODUÇÃO GERAL TOTAL ===== -->
+      <div class="kpi-card kpi-total">
+        <div class="kpi-icone kpi-icone-azul">Σ</div>
+        <div class="kpi-info">
+          <span class="kpi-rotulo">Produção Geral Total</span>
+          <div class="kpi-valor-linha">
+            <span class="kpi-valor" id="kpi-prod-total">0,00</span>
+            <span class="kpi-unidade">km</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== KPI 4: PRODUÇÃO DIÁRIA TOTAL ===== -->
+      <div class="kpi-card kpi-total kpi-diaria">
+        <div class="kpi-icone kpi-icone-verde">⚡</div>
+        <div class="kpi-info">
+          <span class="kpi-rotulo">Produção Diária Total</span>
+          <div class="kpi-valor-linha">
+            <span class="kpi-valor" id="kpi-diaria-total">0,00</span>
+            <span class="kpi-unidade">km/dia</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===== GRÁFICOS DA TELA PRINCIPAL ===== -->
+    <section class="graficos" aria-label="Gráficos da tela principal">
+      <!-- Gráfico 1: Produção por Polo -->
+      <div class="grafico-card">
+        <h3>Produção em km por Polo</h3>
+        <div style="height: 350px;">
+          <canvas id="grafico-prod-polo"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Produção por Encarregado -->
+      <div class="grafico-card">
+        <h3>Produção em km por Encarregado</h3>
+        <div style="height: 400px;">
+          <canvas id="grafico-prod-encarregado"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 3: km Linear Total por Polo (rosca) -->
+      <div class="grafico-card">
+        <h3>Produção em km Linear Total por Polo</h3>
+        <div style="height: 300px;">
+          <canvas id="grafico-linear-polo"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 4: % Supressão de Vegetação (pizza) -->
+      <div class="grafico-card">
+        <h3>% Supressão de Vegetação</h3>
+        <div style="height: 300px;">
+          <canvas id="grafico-supressao"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+      <!-- ===== DETALHAMENTO ===== -->
+      <section class="secao-tabela" id="secao-detalhamento">
+        <div class="tabela-cabecalho">
+          <div class="tabela-titulo-linha">
+            <h2>Detalhamento</h2>
+            <button class="btn-ocultar" id="btn-ocultar-tabela">
+              <span class="btn-ocultar-texto">Ocultar</span>
+              <span class="seta">▼</span>
+            </button>
+          </div>
+          <input type="text" id="busca-tabela" placeholder="🔍 Buscar na tabela...">
+        </div>
+
+        <div class="tabela-wrapper" id="tabela-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>OS</th>
+                <th>Polo</th>
+                <th>Encarregado</th>
+                <th>Tipo</th>
+                <th>Limpeza</th>
+                <th>Km</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-corpo">
+              <!-- linhas geradas pelo app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+  </main>
+
+  <footer class="footer">
+    <p id="footer-atualizacao">Dados carregados do aplicativo</p>
+  </footer>
+
+  <!-- Biblioteca de gráficos (Chart.js via CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Seus scripts (ordem importa) -->
+  <script src="js/api.js" defer></script>
+  <script src="js/tratamento.js" defer></script>
+  <script src="js/multiselect.js" defer></script>
+  <script src="js/charts.js" defer></script>
+  <script src="js/app.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,760 @@
+/* ============================================
+   DASHBOARD — ESTILOS BASE
+   Mobile-first: começa pelo celular e evolui
+   ============================================ */
+
+/* --- Variáveis globais (paleta e espaçamentos) --- */
+:root {
+  --cor-primaria: #2563eb;
+  --cor-primaria-escura: #1e40af;
+  --cor-texto: #1f2937;
+  --cor-texto-suave: #6b7280;
+  --cor-fundo: #f3f4f6;
+  --cor-branco: #ffffff;
+  --cor-borda: #e5e7eb;
+  --cor-sucesso: #16a34a;
+
+  --raio-borda: 8px;
+  --sombra: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --espaco: 16px;
+}
+
+/* --- Reset básico --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  line-height: 1.5;
+}
+
+/* ============================================
+   CABEÇALHO — LOGO E NOME NO CANTO SUPERIOR ESQUERDO
+   ============================================ */
+
+.cabecalho {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  padding: 14px 20px;
+}
+
+/* Alinhado à esquerda: SEM max-width, SEM margin auto,
+   SEM justify-content: center */
+.cabecalho-conteudo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.cabecalho-textos h1 {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cabecalho-subtitulo {
+  font-size: 13px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+/* Em telas pequenas: logo menor, título quebra bem */
+@media (max-width: 480px) {
+  .cabecalho { padding: 12px 16px; }
+  .logo-img { height: 38px; }
+  .cabecalho-textos h1 { font-size: 17px; }
+}
+
+/* --- Container principal --- */
+.container {
+  max-width: 2100px;
+  margin: 0 auto;
+  padding: var(--espaco) 32px; /* 16px em cima/embaixo, 32px nas laterais */
+}
+
+/* Telas grandes: mais respiro ainda nas laterais */
+@media (min-width: 1024px) {
+  .container {
+    padding: var(--espaco) 48px;
+  }
+}
+
+/* --- Filtros --- */
+.filtros {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  background: var(--cor-branco);
+  border-radius: var(--raio-borda);
+  box-shadow: var(--sombra);
+  padding: 16px;
+  margin-bottom: var(--espaco);
+}
+
+.filtros__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: var(--cor-texto-suave);
+}
+
+select,
+.input {
+  padding: 8px 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda);
+  font-size: 0.875rem;
+  background: var(--cor-branco);
+}
+
+select:focus,
+.input:focus {
+  outline: 2px solid var(--cor-primaria);
+  border-color: transparent;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--raio-borda);
+  background: var(--cor-primaria);
+  color: var(--cor-branco);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: var(--cor-primaria-escura);
+}
+
+/* --- Cards de KPI --- */
+.kpis {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco);
+  margin-bottom: var(--espaco);
+}
+
+.card {
+  background: var(--cor-branco);
+  border-radius: var(--raio-borda);
+  box-shadow: var(--sombra);
+  padding: var(--espaco);
+}
+
+.card--kpi {
+  text-align: center;
+}
+
+.card__titulo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  margin-bottom: 8px;
+}
+
+.card__valor {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+}
+
+/* --- Gráficos --- */
+.graficos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco);
+  margin-bottom: var(--espaco);
+}
+
+.grafico {
+  min-height: 280px;
+  width: 100%;
+}
+
+/* --- Tabela --- */
+.tabela-section {
+  background: var(--cor-branco);
+  border-radius: var(--raio-borda);
+  box-shadow: var(--sombra);
+  padding: var(--espaco);
+}
+
+.tabela-section__topo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tabela-wrapper {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cor-borda);
+  white-space: nowrap;
+}
+
+.tabela th {
+  background: var(--cor-fundo);
+  font-weight: 600;
+}
+
+/* --- Rodapé --- */
+.footer {
+  text-align: center;
+  padding: var(--espaco);
+  color: var(--cor-texto-suave);
+  font-size: 0.8125rem;
+}
+
+/* ============================================
+   RESPONSIVO — telas maiores (tablet e desktop)
+   ============================================ */
+@media (min-width: 640px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filtros {
+    grid-template-columns: repeat(3, 1fr) auto;
+    align-items: end;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kpis {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .graficos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================
+   KPI — CARDS SEGMENTADOS (Manual / Mecanizada)
+   Usado nos cards "Produção Geral" e
+   "Produção Diária Geral"
+   ============================================ */
+
+/* Container dos dois tipos dentro do card */
+.kpi__tipos {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Manual | Mecanizada lado a lado */
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Bloco de cada tipo (ícone + rótulo + valor) */
+.kpi__tipo {
+  background: var(--cor-fundo);
+  border-radius: var(--raio-borda);
+  padding: 12px 8px;
+  text-align: center;
+}
+
+/* Ícone (🪓 / 🚜) */
+.kpi__icone {
+  font-size: 1.25rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Rótulo: "Manual" / "Mecanizada" */
+.kpi__rotulo {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Valor numérico do tipo */
+.kpi__valor {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+  margin-top: 4px;
+}
+
+/* Unidade (km / km/dia) */
+.kpi__unidade {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+  margin-top: 2px;
+}
+
+/* ============================================
+   KPI — VALOR EM DESTAQUE (cards de total)
+   Usado em "Produção Geral Total" e
+   "Produção Diária Total"
+   ============================================ */
+
+.card__valor--destaque {
+  font-size: 2rem;          /* maior que o padrão */
+  color: var(--cor-primaria-escura);
+  margin: 8px 0 4px;
+}
+
+/* ============================================
+   FILTROS — CAMPOS DE DATA
+   Mantém os dois inputs (início e fim) alinhados
+   no mesmo label do filtro "Período"
+   ============================================ */
+
+/* Ajusta o label do período para empilhar os campos */
+.filtros__item--periodo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Wrapper dos dois campos de data + "até" */
+.filtros__periodo-campos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+/* Cada data ocupa metade da largura, sem estourar */
+.filtros__periodo-campos input[type="date"] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* O "até" não quebra linha */
+.filtros__ate {
+  font-size: 0.875rem;
+  color: var(--cor-texto-suave);
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .filtros {
+    grid-template-columns: 1fr 1.2fr 1fr 1.8fr auto;/* linha 1: OS | Encarregado | Polo */
+    align-items: end;
+  }
+
+  /* linha 2: Período ocupa 2 colunas + botão Aplicar */
+  .filtros__item--periodo {
+    grid-column: auto;
+  }
+  
+    .filtros__periodo-campos input[type="date"] {
+    padding: 8px 6px; /* reduz o espaço interno para caber "data até data" */
+    font-size: 0.8125rem;
+  }
+
+}
+
+/* ===== MULTISELECT (filtros com múltipla seleção) ===== */
+.multiselect {
+  position: relative;
+  width: 100%;
+  min-width: 180px;
+}
+
+.ms-toggle {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-toggle::after {
+  content: "▾";
+  float: right;
+  color: #6b7280;
+}
+
+.ms-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  min-width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 6px 0;
+}
+
+.multiselect.aberto .ms-menu {
+  display: block;
+}
+
+.ms-menu label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ms-menu label:hover {
+  background: #f3f4f6;
+}
+
+.ms-todos {
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding-bottom: 8px;
+}
+
+/* ===== OVERLAY DE CARREGAMENTO ===== */
+.loading-overlay {
+  position: fixed;
+  inset: 0; /* cobre a tela inteira */
+  background: rgba(243, 244, 246, 0.9);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.4s ease;
+}
+
+/* Estado escondido (após carregar) */
+.loading-overlay.oculto {
+  opacity: 0;
+  pointer-events: none; /* não bloqueia cliques ao sumir */
+}
+
+.loading-caixa {
+  background: #fff;
+  padding: 32px 48px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 16px;
+  border: 4px solid #dbeafe;      /* trilha clara */
+  border-top-color: #1e40af;      /* parte que gira (azul do tema) */
+  border-radius: 50%;
+  animation: girar 0.9s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+.loading-texto {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.loading-sub {
+  color: #6b7280;
+}
+
+
+/* ============================================
+   CARTÕES DE GRÁFICO — DESIGN REFINADO
+   (mesmo padrão dos KPIs)
+   ============================================ */
+
+@media (max-width: 768px) {
+  .grafico-card { padding: 18px; }
+  .grafico-container { height: 260px; }
+}
+
+
+.grafico-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grafico-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.06),
+    0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+/* Título do gráfico: discreto, com barra de destaque */
+.grafico-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 16px;
+  padding-left: 12px;
+  border-left: 4px solid #2563eb;
+  line-height: 1.3;
+}
+
+/* Container do canvas: altura fixa para o Chart.js renderizar certo */
+.grafico-container {
+  position: relative;
+  height: 320px;
+}
+
+/* Pizzas/rosca um pouco mais baixas */
+.grafico-card.grafico-pizza .grafico-container {
+  height: 300px;
+}
+
+
+
+/* ============================================
+   KPIs — DESIGN REFINADO
+   ============================================ */
+
+/* Card base: mais respiro, sombra em 2 camadas */
+.kpi-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Micro-interação: levanta levemente ao passar o mouse */
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.06),
+    0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+/* Faixa lateral com brilho sutil no topo */
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(180deg, #2563eb, #1e40af);
+}
+
+/* Variante diária: faixa verde */
+.kpi-card.kpi-diaria::before {
+  background: linear-gradient(180deg, #22c55e, #0d9488);
+}
+
+/* Selo do ícone: gradiente suave + sombra interna */
+.kpi-icone {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.kpi-icone-azul {
+  background: linear-gradient(145deg, #dbeafe, #bfdbfe);
+}
+
+.kpi-icone-verde {
+  background: linear-gradient(145deg, #ccfbf1, #a7f3d0);
+}
+
+/* Rótulo: menor, espaçado, cinza discreto */
+.kpi-rotulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Valor + unidade colados */
+.kpi-valor-linha {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.kpi-valor {
+  font-size: 30px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums; /* dígitos alinhados */
+}
+
+.kpi-unidade {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* ============================================
+   BOTÃO OCULTAR DETALHAMENTO
+   ============================================ */
+
+.btn-ocultar {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s ease;
+}
+
+.btn-ocultar:hover {
+  background: #e2e8f0;
+}
+
+.btn-ocultar .seta {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+/* Estado recolhido: esconde a tabela e gira a seta */
+.secao-tabela.recolhido .tabela-wrapper {
+  display: none;
+}
+
+.secao-tabela.recolhido .btn-ocultar .seta {
+  transform: rotate(-90deg);
+}
+
+/* ============================================
+   TABELA DE DETALHAMENTO — DESIGN REFINADO
+   ============================================ */
+
+/* Área com rolagem e cantos arredondados */
+.tabela-wrapper {
+  max-height: 480px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+/* Cabeçalho: discreto, fixo ao rolar */
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid #e2e8f0;
+  z-index: 1;
+}
+
+/* Células: respiro e uma linha só (nada quebra a grade) */
+tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  white-space: nowrap;
+}
+
+/* Zebra: linha sim, linha não */
+tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Hover azul suave */
+tbody tr:hover {
+  background: #eff6ff;
+}
+
+/* Km (última coluna): alinhado à direita, em negrito */
+tbody td:last-child {
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Data (primeira coluna): dígitos alinhados */
+tbody td:first-child {
+  font-variant-numeric: tabular-nums;
+}
+/* Cabeçalho "Km" alinhado com os valores (direita) */
+thead th:last-child {
+  text-align: right;
+}
