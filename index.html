@@ -3,198 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Dashboard de produção de supressão vegetal conectado ao Google Sheets">
-  <title>Dashboard de Produção</title>
+  <meta name="description" content="Login do Dashboard de Produção Endisa">
+  <title>Login — Dashboard Endisa</title>
 
-  <!-- Fontes e estilos -->
   <link rel="stylesheet" href="css/fonts.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
-  <!-- ===== OVERLAY DE CARREGAMENTO =====
-       Aparece enquanto a API responde e some ao carregar -->
-  <div class="loading-overlay" id="loading-overlay">
-    <div class="loading-caixa">
-      <div class="loading-spinner"></div>
-      <p class="loading-texto">Carregando dados...</p>
-      <small class="loading-sub">Buscando informações no Aplicativo</small>
+
+  <main class="login-caixa">
+
+    <!-- Marca: logo + título dentro do quadro vermelho -->
+    <div class="login-marca">
+      <div class="login-logo-texto">
+        <span class="logo-nome">ENDISA</span>
+        <span class="logo-sub">ENGENHARIA E MEIO AMBIENTE</span>
+      </div>
+      <h1 class="login-titulo">ACESSO RESTRITO</h1>
     </div>
-  </div>
 
-  <!-- ===== CABEÇALHO ===== -->
-<header class="cabecalho">
-  <div class="cabecalho-conteudo">
-    <img src="assets/img/logo_nome.png" alt="Logo da empresa" class="logo-img">
-    <div class="cabecalho-textos">
-      <h1>Dashboard de Produtividade</h1>
-      <p class="cabecalho-subtitulo">Acompanhamento de produção em km</p>
-    </div>
-  </div>
-</header>
+    <form id="form-login" class="login-form">
 
-  <main class="container">
+      <!-- Campo Usuário -->
+      <label class="login-campo">
+        <span>Usuário</span>
 
-    <!-- ===== BARRA DE FILTROS GLOBAIS =====
-         OS, Encarregado e Polo agora são MULTISELECT:
-         dropdowns com checkboxes, múltipla seleção.
-         Nada marcado = Todos. Datas seguem como estão. -->
-    <section class="filtros" aria-label="Filtros do dashboard">
+        <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
 
-      <div class="filtros__item">
-        <span>OS</span>
-        <div class="multiselect" data-filtro="os">
-          <button type="button" class="ms-toggle">Todas</button>
-          <div class="ms-menu"></div>
-        </div>
-      </div>
-
-      <div class="filtros__item">
-        <span>Encarregado</span>
-        <div class="multiselect" data-filtro="encarregado">
-          <button type="button" class="ms-toggle">Todos</button>
-          <div class="ms-menu"></div>
-        </div>
-      </div>
-
-      <div class="filtros__item">
-        <span>Polo</span>
-        <div class="multiselect" data-filtro="polo">
-          <button type="button" class="ms-toggle">Todos</button>
-          <div class="ms-menu"></div>
-        </div>
-      </div>
-
-      <label class="filtros__item filtros__item--periodo">
-        <span>Período</span>
-        <span class="filtros__periodo-campos">
-          <input type="date" id="filtro-inicio" class="input" title="Data inicial">
-          <span class="filtros__ate">até</span>
-          <input type="date" id="filtro-fim" class="input" title="Data final">
-        </span>
+        <input type="text" id="campo-usuario" placeholder="Digite seu usuário ou e-mail"
+               autocomplete="username" required>
       </label>
 
-      <button class="btn" id="btn-aplicar-filtros">Aplicar</button>
-    </section>
+      <!-- Campo Senha -->
+      <label class="login-campo">
+        <span>Senha</span>
 
-    <!-- ===== CARDS DE KPI (TELA PRINCIPAL) ===== -->
-    <section class="kpis" aria-label="Indicadores principais">
+        <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 8h-1V6c0-2.8-2.2-5-5-5S7 3.2 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.7 1.3-3 3-3s3 1.3 3 3v2H9V6z"/>
+        </svg>
 
-      <!-- KPI 1: Produção Geral -->
-      <article class="card card--kpi">
-        <h2 class="card__titulo">Produção Geral</h2>
-        <div class="kpi__tipos">
-          <div class="kpi__tipo">
-            <span class="kpi__icone" title="Manual">🪓</span>
-            <span class="kpi__rotulo">Manual</span>
-            <p class="kpi__valor" id="kpi-prod-manual">—</p>
-            <small class="kpi__unidade">km</small>
-          </div>
-          <div class="kpi__tipo">
-            <span class="kpi__icone" title="Mecanizada">🚜</span>
-            <span class="kpi__rotulo">Mecanizada</span>
-            <p class="kpi__valor" id="kpi-prod-mecanizada">—</p>
-            <small class="kpi__unidade">km</small>
-          </div>
-        </div>
-      </article>
+        <input type="password" id="campo-senha" placeholder="Digite sua senha"
+               autocomplete="current-password" required>
 
-      <!-- KPI 2: Produção Diária Geral -->
-      <article class="card card--kpi">
-        <h2 class="card__titulo">Produção Diária Geral</h2>
-        <div class="kpi__tipos">
-          <div class="kpi__tipo">
-            <span class="kpi__icone" title="Manual">🪓</span>
-            <span class="kpi__rotulo">Manual</span>
-            <p class="kpi__valor" id="kpi-diaria-manual">—</p>
-            <small class="kpi__unidade">km/dia</small>
-          </div>
-          <div class="kpi__tipo">
-            <span class="kpi__icone" title="Mecanizada">🚜</span>
-            <span class="kpi__rotulo">Mecanizada</span>
-            <p class="kpi__valor" id="kpi-diaria-mecanizada">—</p>
-            <small class="kpi__unidade">km/dia</small>
-          </div>
-        </div>
-      </article>
+        <!-- Botão olho: mostra/oculta a senha -->
+        <button type="button" class="btn-olho" id="btn-olho" title="Mostrar senha">
+          <svg class="olho-aberto" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5c-1.7-4.4-6-7.5-11-7.5zm0 12.5c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8c-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3-1.3-3-3-3z"/>
+          </svg>
+          <svg class="olho-fechado" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 6c3.8 0 7.2 2.4 9.4 6-2.2 3.6-5.6 6-9.4 6s-7.2-2.4-9.4-6C4.8 8.4 8.2 6 12 6zm0 10.5c2.5 0 4.5-2 4.5-4.5s-2-4.5-4.5-4.5-4.5 2-4.5 4.5 2 4.5 4.5 4.5zM2.4 3.7 3.7 2.4l17.9 17.9-1.3 1.3z"/>
+          </svg>
+        </button>
+      </label>
 
-      <!-- ===== KPI 3: PRODUÇÃO GERAL TOTAL ===== -->
-      <div class="kpi-card kpi-total">
-        <div class="kpi-icone kpi-icone-azul">Σ</div>
-        <div class="kpi-info">
-          <span class="kpi-rotulo">Produção Geral Total</span>
-          <div class="kpi-valor-linha">
-            <span class="kpi-valor" id="kpi-prod-total">0,00</span>
-            <span class="kpi-unidade">km</span>
-          </div>
-        </div>
-      </div>
+      <!-- Mensagens de erro e sucesso -->
+      <p id="login-erro" class="login-erro oculto"></p>
+      <p id="login-sucesso" class="login-sucesso oculto"></p>
 
-      <!-- ===== KPI 4: PRODUÇÃO DIÁRIA TOTAL ===== -->
-      <div class="kpi-card kpi-total kpi-diaria">
-        <div class="kpi-icone kpi-icone-verde">⚡</div>
-        <div class="kpi-info">
-          <span class="kpi-rotulo">Produção Diária Total</span>
-          <div class="kpi-valor-linha">
-            <span class="kpi-valor" id="kpi-diaria-total">0,00</span>
-            <span class="kpi-unidade">km/dia</span>
-          </div>
-        </div>
-      </div>
+      <!-- Botão Entrar -->
+      <button type="submit" class="login-botao" id="btn-entrar">Entrar</button>
+    </form>
 
-    </section>
-
-    <!-- ===== GRÁFICOS DA TELA PRINCIPAL ===== -->
-    <section class="graficos" aria-label="Gráficos da tela principal">
-      <!-- Gráfico 1: Produção por Polo -->
-      <div class="grafico-card">
-        <h3>Produção em km por Polo</h3>
-        <div style="height: 350px;">
-          <canvas id="grafico-prod-polo"></canvas>
-        </div>
-      </div>
-
-      <!-- Gráfico 2: Produção por Encarregado -->
-      <div class="grafico-card">
-        <h3>Produção em km por Encarregado</h3>
-        <div style="height: 400px;">
-          <canvas id="grafico-prod-encarregado"></canvas>
-        </div>
-      </div>
-
-      <!-- Gráfico 3: km Linear Total por Polo (rosca) -->
-      <div class="grafico-card">
-        <h3>Produção em km Linear Total por Polo</h3>
-        <div style="height: 300px;">
-          <canvas id="grafico-linear-polo"></canvas>
-        </div>
-      </div>
-
-      <!-- Gráfico 4: % Supressão de Vegetação (pizza) -->
-      <div class="grafico-card">
-        <h3>% Supressão de Vegetação</h3>
-        <div style="height: 300px;">
-          <canvas id="grafico-supressao"></canvas>
-        </div>
-      </div>
-
-    </section>
-
-
+    <p class="login-rodape">Dashboard de Produção — km de supressão vegetal</p>
   </main>
 
-  <footer class="footer">
-    <p id="footer-atualizacao">Dados carregados do aplicativo</p>
-  </footer>
+ <!-- No index.html (login) -->
+<script src="js/loginapi.js"></script>
+<script src="js/login.js"></script>
 
-  <!-- Biblioteca de gráficos (Chart.js via CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-  <!-- Seus scripts (ordem importa) -->
-  <script src="js/api.js" defer></script>
-  <script src="js/tratamento.js" defer></script>
-  <script src="js/multiselect.js" defer></script>
-  <script src="js/charts.js" defer></script>
-  <script src="js/app.js" defer></script>
-
+<!-- No dashboard.html -->
+<script src="js/loginapi.js"></script>
+<script src="js/auth.js"></script>
+<!-- ... resto igual -->
 </body>
 </html>

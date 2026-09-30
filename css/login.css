@@ -1,0 +1,191 @@
+/* ============================================
+   LOGIN — DASHBOARD ENDISA
+   Estilo da tela de acesso (index.html)
+   Formato de referência: quadro vermelho na marca
+   ============================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Fundo azul escuro ocupando a tela toda */
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(160deg, #16324f 0%, #1a3a5a 100%);
+}
+
+/* ===== Card principal ===== */
+.login-caixa {
+  background: #fff;
+  padding: 36px 32px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .1), 0 12px 32px rgba(0, 0, 0, .25);
+  width: min(380px, 92vw);
+  text-align: center;
+}
+
+/* ===== Bloco da marca (quadro vermelho) ===== */
+.login-marca {
+  border: 2px solid #ff0000;
+  border-radius: 10px;
+  padding: 18px 14px 16px;
+  margin-bottom: 24px;
+}
+
+.login-logo-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.logo-nome {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1a3a5a;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.logo-sub {
+  font-size: .62rem;
+  font-weight: 600;
+  color: #6b7a8d;
+  letter-spacing: 2px;
+}
+
+.login-titulo {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #1a3a5a;
+  letter-spacing: 1.5px;
+  border-top: 1px solid #e3e8ef;
+  padding-top: 10px;
+}
+
+/* ===== Formulário ===== */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.login-campo { position: relative; }
+
+.login-campo span {
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #4a5a6a;
+  margin-bottom: 6px;
+}
+
+.login-campo input {
+  width: 100%;
+  height: 44px;
+  padding: 0 42px 0 40px; /* espaço para os ícones */
+  border: 1px solid #d1d9e6;
+  border-radius: 8px;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.login-campo input:focus {
+  border-color: #2e7dd1;
+  box-shadow: 0 0 0 3px rgba(46, 125, 209, .15);
+}
+
+/* Ícone à esquerda do campo */
+.login-campo .icone {
+  position: absolute;
+  left: 12px;
+  bottom: 13px;
+  width: 18px;
+  height: 18px;
+  fill: #a0aab8;
+}
+
+/* ===== Botão de olho (mostrar/ocultar senha) ===== */
+.btn-olho {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+}
+.btn-olho svg { width: 18px; height: 18px; fill: #a0aab8; }
+.btn-olho:hover svg { fill: #1a3a5a; }
+
+/* Alterna entre olho aberto e fechado */
+.btn-olho .olho-fechado { display: none; }
+.btn-olho.ativo .olho-aberto  { display: none; }
+.btn-olho.ativo .olho-fechado { display: block; }
+
+/* ===== Mensagens de erro e sucesso ===== */
+.login-erro,
+.login-sucesso {
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: .85rem;
+}
+.login-erro {
+  background: #fdecea;
+  color: #b3261e;
+  border: 1px solid #f5c6c2;
+}
+.login-sucesso {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #a5d6a7;
+}
+.oculto { display: none; }
+
+/* ===== Botão Entrar ===== */
+.login-botao {
+  background: #1a3a5a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  height: 44px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .2s;
+}
+.login-botao:hover { background: #12283f; }
+.login-botao:disabled { opacity: .7; cursor: wait; }
+
+/* Spinner do botão (estado "Entrando...") */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, .4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: girar .7s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* ===== Rodapé do card ===== */
+.login-rodape {
+  margin-top: 20px;
+  font-size: .75rem;
+  color: #a0aab8;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 420px) {
+  .login-caixa { padding: 26px 20px; }
+}   

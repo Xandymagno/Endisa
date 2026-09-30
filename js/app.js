@@ -61,7 +61,14 @@ async function carregarDados() {
       os: valoresUnicos(dadosValidos, "OS"),
       encarregado: valoresUnicos(dadosValidos, "Encarregado"),
       polo: valoresUnicos(dadosValidos, "Polo")
-    }, aplicarFiltros);
+    }, 
+    aplicarFiltros);
+    // 🔒 Restrição por polo do usuário logado
+    const usuario = LoginAPI.usuarioLogado();
+    const poloUsuario = usuario ? String(usuario.polo || "").trim() : "";
+    if (poloUsuario && poloUsuario.toLowerCase() !== "todos") {
+      Multiselect.travar("polo", poloUsuario);
+    }
     aplicarFiltros(); // já respeita o mês vigente pré-preenchido
     document.getElementById("footer-atualizacao").textContent =
       "Última atualização: " + new Date().toLocaleString("pt-BR");
@@ -80,6 +87,45 @@ function atualizarTela(registros) {
   calcularKPIs(registros);
   Charts.renderizarTodos(registros, graficos);
 }
+
+/**
+ * Recalcula as opções dos filtros em cascata:
+ * cada lista mostra só os valores que existem nos registros
+ * do período + dos OUTROS filtros (ela mesma não se limita).
+ */
+function atualizarOpcoesFiltros() {
+
+  const os          = Multiselect.valores("os");
+  const encarregado = Multiselect.valores("encarregado");
+  const polo        = Multiselect.valores("polo");
+  const inicio = document.getElementById("filtro-inicio").value;
+  const fim    = document.getElementById("filtro-fim").value;
+  
+  const poloTravado = document.querySelector('.multiselect[data-filtro="polo"].ms-travado');
+  if (!poloTravado) {
+    Multiselect.atualizarOpcoes("polo", valoresUnicos(base(true, true, false), "Polo"));
+  }
+  // Base = dados válidos + período + os filtros informados
+  function base(usarOs, usarEnc, usarPolo) {
+    return dadosValidos.filter(function (r) {
+      if (usarOs   && os.length          && !os.includes(String(r["OS"]).trim())) return false;
+      if (usarEnc  && encarregado.length && !encarregado.includes(String(r["Encarregado"]).trim())) return false;
+      if (usarPolo && polo.length        && !polo.includes(String(r["Polo"]).trim())) return false;
+      if (inicio || fim) {
+        const iso = Tratamento.dataParaISO(r["DataInicio"]);
+        if (!iso) return false;
+        if (inicio && iso < inicio) return false;
+        if (fim && iso > fim) return false;
+      }
+      return true;
+    });
+  }
+
+  Multiselect.atualizarOpcoes("os",           valoresUnicos(base(false, true,  true),  "OS"));
+  Multiselect.atualizarOpcoes("encarregado",  valoresUnicos(base(true,  false, true),  "Encarregado"));
+  Multiselect.atualizarOpcoes("polo",         valoresUnicos(base(true,  true,  false), "Polo"));
+}
+
 
 /**
  * Aplica os filtros selecionados e reatualiza a tela.
@@ -105,7 +151,10 @@ function aplicarFiltros() {
     return true;
   });
   atualizarTela(filtrados);
+  atualizarOpcoesFiltros(); // 🔄 listas acompanham o período e os outros filtros
 }
+
+
 
 /**
  * Calcula os 4 KPIs de produção em km.

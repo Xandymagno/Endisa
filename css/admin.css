@@ -1,0 +1,102 @@
+/* ADMIN — Gestão de usuários */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f0f3f7;
+  min-height: 100vh;
+}
+
+.admin-topo {
+  background: #1a3a5a;
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.admin-marca { font-weight: 800; letter-spacing: 1px; }
+.admin-marca span { font-weight: 400; font-size: .85rem; opacity: .8; }
+.admin-user { display: flex; align-items: center; gap: 12px; font-size: .9rem; }
+.btn-sair {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.btn-sair:hover { background: rgba(255,255,255,.25); }
+
+.admin-corpo {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 16px;
+  display: grid;
+  gap: 20px;
+}
+
+.admin-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.admin-card h2 {
+  color: #1a3a5a;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  border-left: 4px solid #ff0000;
+  padding-left: 10px;
+}
+
+#form-usuario { display: grid; gap: 12px; }
+#form-usuario label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: .85rem; font-weight: 600; color: #4a5a6a;
+}
+#form-usuario input, #form-usuario select {
+  height: 40px;
+  border: 1px solid #d1d9e6;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: .95rem;
+}
+#form-usuario input[readonly] { background: #eef1f5; color: #6b7a8d; }
+#form-usuario small { font-weight: 400; color: #8a97a5; }
+
+.admin-botoes { display: flex; gap: 10px; }
+.admin-botoes button {
+  height: 42px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#btn-salvar { background: #1a3a5a; color: #fff; }
+#btn-salvar:hover { background: #12283f; }
+#btn-cancelar { background: #e3e8ef; color: #4a5a6a; }
+
+#admin-msg { border-radius: 8px; padding: 9px 12px; font-size: .85rem; }
+#admin-msg.erro { background: #fdecea; color: #b3261e; }
+#admin-msg.ok { background: #e8f5e9; color: #1b5e20; }
+.oculto { display: none; }
+
+.tabela-usuarios { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tabela-usuarios th, .tabela-usuarios td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e3e8ef;
+}
+.tabela-usuarios th { color: #1a3a5a; font-size: .8rem; text-transform: uppercase; }
+.btn-editar {
+  background: none;
+  border: 1px solid #1a3a5a;
+  color: #1a3a5a;
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: .8rem;
+}
+.btn-editar:hover { background: #1a3a5a; color: #fff; }

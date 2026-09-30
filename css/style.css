@@ -82,9 +82,9 @@ body {
 
 /* --- Container principal --- */
 .container {
-  max-width: 2100px;
-  margin: 0 auto;
-  padding: var(--espaco) 32px; /* 16px em cima/embaixo, 32px nas laterais */
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100%;
 }
 
 /* Telas grandes: mais respiro ainda nas laterais */
@@ -758,3 +758,237 @@ tbody td:first-child {
 thead th:last-child {
   text-align: right;
 }
+/* ============================================
+   LAYOUT COM SIDEBAR (estado controlado no body)
+   ============================================ */
+
+/* --- Sidebar --- */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 240px;
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width .25s ease, transform .25s ease;
+}
+
+.sidebar-marca {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 62px; /* altura fixa: o cabeçalho nunca "pula" */
+}
+.sidebar-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* logo escura → branca */
+  transition: opacity .2s;
+}
+
+.sidebar-toggle {
+  background: rgba(255,255,255,.08);
+  color: #e2e8f0;
+  border: none;
+  border-radius: 8px;
+  width: 30px; height: 30px;
+  font-size: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sidebar-toggle:hover { background: rgba(255,255,255,.18); }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden; /* nada vaza quando recolhe */
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap; /* texto nunca quebra feio */
+  transition: background .2s, color .2s;
+}
+.sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.sidebar-link.ativo { background: #2563eb; color: #fff; }
+.sidebar-icone { font-size: 17px; flex-shrink: 0; }
+
+.sidebar-rodape {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sidebar-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.sidebar-nome {
+  font-size: 13px; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-sair {
+  width: 100%;
+  background: rgba(255,255,255,.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sidebar-sair:hover { background: rgba(255,255,255,.16); }
+
+.sidebar-fundo {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,.5);
+  z-index: 90;
+}
+
+/* --- Conteúdo: acompanha a sidebar SEMPRE --- */
+.conteudo {
+  margin-left: 240px;
+  max-width: none;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* filhos ocupam toda a largura */
+}
+
+/* ✅ Estado recolhido: UMA regra no body resolve sidebar + conteúdo */
+body.sidebar-recolhida .sidebar { width: 68px; }
+body.sidebar-recolhida .conteudo { margin-left: 68px; }
+/* Recolhido: só os ícones aparecem */
+body.sidebar-recolhida .sidebar-texto { display: none; }
+
+body.sidebar-recolhida .sidebar-logo { display: none; }
+body.sidebar-recolhida .sidebar-toggle { transform: rotate(180deg); }
+body.sidebar-recolhida .sidebar-marca { justify-content: center; padding: 14px 8px; }
+body.sidebar-recolhida .sidebar-link { justify-content: center; padding: 11px 0; }
+
+body.sidebar-recolhida .sidebar-usuario { justify-content: center; }
+body.sidebar-recolhida .sidebar-nome { display: none; }
+body.sidebar-recolhida .sidebar-sair { font-size: 0; padding: 8px 0; }
+body.sidebar-recolhida .sidebar-sair::after { content: "⎋"; font-size: 15px; }
+
+
+/* Recolhida: nome aparece como tooltip no hover */
+body.sidebar-recolhida .sidebar-link { position: relative; }
+body.sidebar-recolhida .sidebar-link:hover::after {
+  content: attr(data-titulo);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e293b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 200;
+}
+
+
+/* --- Cabeçalho com acesso do login --- */
+.cabecalho {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.btn-menu {
+  display: none;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.cabecalho-conteudo { flex: 1; }
+.cabecalho-usuario { display: flex; align-items: center; gap: 10px; }
+.cabecalho-nome { font-size: 14px; font-weight: 700; color: #0f172a; }
+.cabecalho-nivel {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  background: #dbeafe; color: #1e40af;
+  border-radius: 20px; padding: 3px 10px;
+}
+.btn-sair-topo {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px; font-weight: 600; color: #334155;
+  cursor: pointer;
+}
+.btn-sair-topo:hover { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+
+/* --- Mobile: gaveta --- */
+@media (max-width: 900px) {
+  .conteudo { margin-left: 0 !important; }
+  .btn-menu { display: block; }
+  .sidebar { transform: translateX(-100%); width: 240px !important; }
+  .sidebar.aberta { transform: translateX(0); }
+  .sidebar-fundo.aberto { display: block; }
+  .sidebar-toggle { display: none; }
+  .cabecalho-nivel { display: none; }
+}
+
+/* Botão Limpar dentro do dropdown */
+.ms-limpar {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.ms-limpar:hover { background: #fee2e2; }
+
+/* Filtro travado por permissão do usuário */
+.ms-travado .ms-toggle {
+  opacity: .75;
+  cursor: not-allowed;
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+.ms-travado .ms-menu { display: none !important; }

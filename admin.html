@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuários — Dashboard Endisa</title>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <header class="admin-topo">
+    <div class="admin-marca">ENDISA <span>| Gestão de Usuários</span></div>
+    <div class="admin-user">
+      <span id="admin-nome"></span>
+      <button id="btn-sair" class="btn-sair">Sair</button>
+    </div>
+  </header>
+
+  <main class="admin-corpo">
+
+    <!-- Formulário: adicionar / editar -->
+    <section class="admin-card">
+      <h2 id="titulo-form">Adicionar usuário</h2>
+
+      <form id="form-usuario">
+        <input type="hidden" id="modo" value="adicionar">
+
+        <label>Usuário
+          <input type="text" id="f-usuario" required>
+        </label>
+
+        <label>Senha <small id="dica-senha"></small>
+          <input type="password" id="f-senha">
+        </label>
+
+        <label>Polo
+          <input type="text" id="f-polo" placeholder="Ex.: Paraíso ou todos">
+        </label>
+
+        <label>Nível
+          <select id="f-nivel">
+            <option value="adm">adm</option>
+            <option value="energisa">energisa</option>
+            <option value="cliente">cliente</option>
+          </select>
+        </label>
+
+        <label>Ativo
+          <select id="f-ativo">
+            <option value="SIM">SIM</option>
+            <option value="NAO">NÃO</option>
+          </select>
+        </label>
+
+        <p id="admin-msg" class="oculto"></p>
+
+        <div class="admin-botoes">
+          <button type="submit" id="btn-salvar">Salvar</button>
+          <button type="button" id="btn-cancelar" class="oculto">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Tabela de usuários -->
+    <section class="admin-card">
+      <h2>Usuários cadastrados</h2>
+      <table class="tabela-usuarios">
+        <thead>
+          <tr><th>Usuário</th><th>Polo</th><th>Nível</th><th>Ativo</th><th>Senha</th><th></th></tr>
+        </thead>
+        <tbody id="corpo-tabela">
+          <tr><td colspan="6">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+ <script src="js/loginapi.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

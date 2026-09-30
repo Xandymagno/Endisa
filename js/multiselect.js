@@ -45,6 +45,24 @@ const Multiselect = {
       labelTodos.appendChild(document.createTextNode(" Todos"));
       menu.appendChild(labelTodos);
 
+      // Botão "Limpar": zera a seleção do filtro
+      const btnLimpar = document.createElement("button");
+      btnLimpar.type = "button";
+      btnLimpar.className = "ms-limpar";
+      btnLimpar.textContent = "✕ Limpar";
+      menu.appendChild(btnLimpar);
+
+      btnLimpar.addEventListener("click", function (e) {
+        e.stopPropagation();
+        Multiselect.selecoes[chave] = [];
+        menu.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+          cb.checked = cb.parentElement.classList.contains("ms-todos");
+        });
+        Multiselect.atualizarRotulo(ms, chave);
+        Multiselect.aoAlterar();
+      });
+
+
       valores.forEach(function (valor) {
         const label = document.createElement("label");
         const cb = document.createElement("input");
@@ -76,8 +94,9 @@ const Multiselect = {
 
         const ehTodos = cb.parentElement.classList.contains("ms-todos");
 
-        if (ehTodos) {
-          // "Todos" marca/desmarca a lista inteira
+       if (ehTodos) {
+          // Comportamento original: marcado = sem filtro (todos),
+          // desmarcado = limpa a seleção
           const marcar = cb.checked;
           menu.querySelectorAll('input[type="checkbox"]').forEach(function (outro) {
             if (!outro.parentElement.classList.contains("ms-todos")) {
@@ -121,6 +140,60 @@ const Multiselect = {
       toggle.textContent = selecionados.length + " selecionados";
     }
   },
+
+    /**
+   * Atualiza as opções de um filtro (filtros em cascata),
+   * mantendo apenas as seleções que ainda existem na lista.
+   */
+    /**
+   * 🔒 Trava um filtro em um único valor (ex.: polo do usuário).
+   * O dropdown fica desabilitado e sempre filtrado por esse valor.
+   */
+  travar: function (chave, valor) {
+    const ms = document.querySelector('.multiselect[data-filtro="' + chave + '"]');
+    if (!ms) return;
+
+    Multiselect.selecoes[chave] = [valor];
+    ms.classList.add("ms-travado");
+
+    const toggle = ms.querySelector(".ms-toggle");
+    toggle.textContent = valor;
+    toggle.disabled = true;
+  },
+  atualizarOpcoes: function (chave, valores) {
+    const ms = document.querySelector('.multiselect[data-filtro="' + chave + '"]');
+    if (!ms) return;
+    const menu = ms.querySelector(".ms-menu");
+
+    // Descarta seleções que sumiram da lista (ex.: OS sem serviço no período)
+    Multiselect.selecoes[chave] =
+      (Multiselect.selecoes[chave] || []).filter(function (v) {
+        return valores.includes(v);
+      });
+    const marcados = Multiselect.selecoes[chave];
+
+    // Reconstrói os checkboxes (o item "Todos" fica)
+    menu.querySelectorAll("label:not(.ms-todos)").forEach(function (l) {
+      l.remove();
+    });
+    valores.forEach(function (valor) {
+      const label = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = valor;
+      cb.checked = marcados.includes(valor);
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(" " + valor));
+      menu.appendChild(label);
+    });
+
+    // "Todos" volta a ficar marcado quando nada está selecionado
+    const cbTodos = menu.querySelector(".ms-todos input");
+    if (cbTodos) cbTodos.checked = marcados.length === 0;
+
+    Multiselect.atualizarRotulo(ms, chave);
+  },
+
 
   /**
    * Valores marcados de um filtro. Array vazio = todos.
