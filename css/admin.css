@@ -29,11 +29,10 @@ body {
 .btn-sair:hover { background: rgba(255,255,255,.25); }
 
 .admin-corpo {
-  max-width: 900px;
-  margin: 24px auto;
-  padding: 0 16px;
-  display: grid;
-  gap: 20px;
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  padding: 24px;
 }
 
 .admin-card {
@@ -41,6 +40,9 @@ body {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
 }
 .admin-card h2 {
   color: #1a3a5a;
@@ -48,6 +50,7 @@ body {
   margin-bottom: 16px;
   border-left: 4px solid #ff0000;
   padding-left: 10px;
+  
 }
 
 #form-usuario { display: grid; gap: 12px; }
@@ -83,13 +86,30 @@ body {
 #admin-msg.ok { background: #e8f5e9; color: #1b5e20; }
 .oculto { display: none; }
 
-.tabela-usuarios { width: 100%; border-collapse: collapse; font-size: .9rem; }
-.tabela-usuarios th, .tabela-usuarios td {
-  padding: 10px 8px;
-  text-align: left;
-  border-bottom: 1px solid #e3e8ef;
+.tabela-usuarios { 
+  width: 100%; 
+  min-width: 720px;
+  table-layout: auto;
+  border-collapse: collapse; 
+  font-size: .9rem; }
+
+.tabela-usuarios th,
+.tabela-usuarios td {
+  vertical-align: middle;
 }
-.tabela-usuarios th { color: #1a3a5a; font-size: .8rem; text-transform: uppercase; }
+.tabela-usuarios th {
+  white-space: nowrap;
+}
+
+.tabela-usuarios th:last-child,
+.tabela-usuarios td:last-child {
+  width: 100px;
+  text-align: center;
+  white-space: nowrap;
+}
+.tabela-usuarios th { 
+  color: #1a3a5a; font-size: .8rem; text-transform: uppercase;
+   }
 .btn-editar {
   background: none;
   border: 1px solid #1a3a5a;
@@ -100,3 +120,9 @@ body {
   font-size: .8rem;
 }
 .btn-editar:hover { background: #1a3a5a; color: #fff; }
+
+@media (max-width: 600px) {
+  .admin-corpo {
+    padding: 16px;
+  }
+}

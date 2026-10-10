@@ -20,51 +20,7 @@
       <small class="loading-sub">Buscando informações no Aplicativo</small>
     </div>
   </div>
-<!-- ===== SIDEBAR ===== -->
 
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-marca">
-      <img src="assets/img/logo_nome.png" alt="ENDISA" class="sidebar-logo">
-      <button class="sidebar-toggle" id="btn-toggle" title="Recolher menu">«</button>
-    </div>
-
-    <nav class="sidebar-nav">
-      <a href="#" class="sidebar-link ativo" data-pagina="dashboard" data-titulo="Dashboard">
-        <span class="sidebar-icone">📊</span>
-        <span class="sidebar-texto">Dashboard</span>
-      </a>
-      <a href="admin.html" class="sidebar-link" id="link-admin" data-titulo="Usuários" hidden>
-        <span class="sidebar-icone">👥</span>
-        <span class="sidebar-texto">Usuários</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-rodape">
-      <div class="sidebar-usuario">
-        <span class="sidebar-avatar" id="sidebar-avatar">A</span>
-        <span class="sidebar-nome" id="sidebar-nome">—</span>
-      </div>
-      <button class="sidebar-sair" id="btn-sair-sidebar">Sair</button>
-    </div>
-  </aside>
-   <div class="sidebar-fundo" id="sidebar-fundo"></div>
-
- <div class="conteudo">
-  <!-- ===== CABEÇALHO ===== -->
-  <header class="cabecalho">
-      <button class="btn-menu" id="btn-menu" aria-label="Abrir menu">☰</button>
-      <div class="cabecalho-conteudo">
-        <div class="cabecalho-textos">
-          <h1>Dashboard de Produtividade</h1>
-          <p class="cabecalho-subtitulo">Acompanhamento de produção em km</p>
-        </div>
-      </div>
-      <div class="cabecalho-usuario">
-        <span class="cabecalho-nome" id="cabecalho-nome">—</span>
-        <span class="cabecalho-nivel" id="cabecalho-nivel">—</span>
-        <button class="btn-sair-topo" id="btn-sair-topo">Sair</button>
-      </div>
-    </header>
 
   <main class="container">
 
@@ -89,6 +45,15 @@
           <div class="ms-menu"></div>
         </div>
       </div>
+
+      <div class="filtros__item">
+        <span>Serviço</span>
+        <div class="multiselect" data-filtro="servico">
+          <button type="button" class="ms-toggle">Todos</button>
+          <div class="ms-menu"></div>
+        </div>
+      </div>
+
 
       <div class="filtros__item">
         <span>Polo</span>
@@ -212,14 +177,10 @@
       </div>
 
     </section>
-
-
-  </main>
-
-    <footer class="footer">
+      <footer class="footer">
       <p id="footer-atualizacao">Dados carregados do aplicativo</p>
     </footer>
-  </div>
+  </main>
 
   <!-- Biblioteca de gráficos (Chart.js via CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -227,12 +188,13 @@
   <!-- Seus scripts (ordem importa) -->
   <script src="js/loginapi.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/sidebar.js"></script>
   <script src="js/api.js" defer></script>
   <script src="js/tratamento.js" defer></script>
   <script src="js/multiselect.js" defer></script>
   <script src="js/charts.js" defer></script>
   <script src="js/app.js" defer></script>
-  <script src="js/sidebar.js" defer></script>
+  
 
 </body>
 </html>

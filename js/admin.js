@@ -43,7 +43,7 @@ async function carregarUsuarios() {
   corpoTabela.innerHTML = '<tr><td colspan="6">Carregando...</td></tr>';
   try {
     const resposta = await LoginAPI.chamar({
-      acao:  campoModo.value + "_usuario",
+      acao:  "listar_usuarios",
       token: sessionStorage.getItem("sess_token"),
     });
     if (!resposta.ok) throw new Error(resposta.erro);
@@ -127,6 +127,12 @@ formAdmin.addEventListener("submit", async function (e) {
     mostrarMsg(falha.message, true);
   }
 });
+  const campoNome = document.getElementById("admin-nome");
+  if (campoNome) campoNome.textContent = usuario.usuario;
+
+  carregarUsuarios();
+
+
 
 /** Sair */
 btnSair.addEventListener("click", function () {

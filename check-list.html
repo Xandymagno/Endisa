@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Acompanhamento de check-lists previstos e realizados por encarregado">
+  <title>Check-list — Dashboard Endisa</title>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/checklist.css">
+</head>
+<body>
+  <div class="conteudo">
+    <main class="container checklist-conteudo">
+      <header class="checklist-cabecalho">
+        <div>
+          <h1>Check-list dos encarregados</h1>
+          <p>Compare os registros previstos e realizados no período.</p>
+        </div>
+        <button type="button" class="btn" id="btn-atualizar">Atualizar dados</button>
+      </header>
+
+      <section class="checklist-filtros" aria-label="Filtros de check-list">
+        <label class="checklist-campo">
+          <span>Data inicial</span>
+          <input type="date" id="filtro-inicio">
+        </label>
+        <label class="checklist-campo">
+          <span>Data final</span>
+          <input type="date" id="filtro-fim">
+        </label>
+        <label class="checklist-campo checklist-campo-busca">
+          <span>Buscar encarregado</span>
+          <input type="search" id="filtro-busca" placeholder="Nome ou matrícula">
+        </label>
+        <button type="button" class="btn" id="btn-aplicar">Aplicar filtros</button>
+      </section>
+
+      <div class="checklist-mensagem" id="checklist-mensagem" role="status" aria-live="polite">
+        Carregando check-lists...
+      </div>
+
+      <section class="checklist-kpis" aria-label="Resumo do período">
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone" aria-hidden="true">▣</span>
+          <div><span class="checklist-kpi-rotulo">Total previsto</span><strong id="kpi-previsto">—</strong></div>
+        </article>
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone checklist-icone-sucesso" aria-hidden="true">✓</span>
+          <div><span class="checklist-kpi-rotulo">Realizados</span><strong id="kpi-realizados">—</strong></div>
+        </article>
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone checklist-icone-alerta" aria-hidden="true">!</span>
+          <div><span class="checklist-kpi-rotulo">Faltando</span><strong id="kpi-faltando">—</strong></div>
+        </article>
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone checklist-icone-info" aria-hidden="true">●</span>
+          <div><span class="checklist-kpi-rotulo">Justificados</span><strong id="kpi-justificados">—</strong></div>
+        </article>
+      </section>
+
+      <section class="checklist-grafico-card" aria-label="Check-lists por dia">
+        <div class="checklist-secao-titulo">
+          <div>
+            <h2>Check-lists no período</h2>
+            <p>Previstos e realizados por data, considerando os encarregados filtrados.</p>
+          </div>
+          <div class="checklist-legenda" aria-label="Legenda do gráfico">
+            <span><i class="legenda-previsto"></i>Previstos</span>
+            <span><i class="legenda-realizado"></i>Realizados</span>
+            <span><i class="legenda-justificado"></i>Justificados</span>
+          </div>
+        </div>
+        <div class="checklist-grafico-wrapper">
+          <canvas id="grafico-checklist" aria-label="Gráfico de check-lists por dia"></canvas>
+        </div>
+      </section>
+
+      <section class="checklist-tabela-card" aria-label="Resumo por encarregado">
+        <div class="checklist-tabela-scroll">
+          <table class="checklist-tabela">
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Matrícula</th>
+                <th scope="col">Período contrato</th>
+                <th scope="col">Previsto</th>
+                <th scope="col">Realizados</th>
+                <th scope="col">Faltando</th>
+                <th scope="col">Justificados</th>
+                <th scope="col">% Conformidade</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-checklist">
+              <tr><td colspan="8">Carregando dados...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="checklist-atualizacao" id="checklist-atualizacao"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/loginapi.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/api.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <script src="js/checklist.js" defer></script>
+</body>
+</html>

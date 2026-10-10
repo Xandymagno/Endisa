@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indicadores de OS</title>
+
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/os.css">
+
+
+</head>
+<body>
+  <div class="conteudo">
+    <main class="container os-conteudo">
+      <section class="os-filtros filtros" aria-label="Filtros de OS">
+        <label class="filtros__item">
+          <span>OS</span>
+          <select id="filtro-os">
+            <option value="">Todas</option>
+          </select>
+        </label>
+
+        <label class="filtros__item">
+          <span>Status</span>
+          <select id="filtro-status">
+            <option value="">Todos</option>
+            <option value="retornar">À retornar</option>
+            <option value="execucao">Em execução</option>
+            <option value="quase-concluindo">Quase concluindo</option>
+            <option value="iniciar">À iniciar</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </label>
+
+        <label class="filtros__item">
+          <span>Polo</span>
+          <select id="filtro-polo">
+            <option value="">Todos</option>
+          </select>
+        </label>
+
+        <label class="filtros__item os-periodo">
+          <span>Período</span>
+          <span class="filtros__periodo-campos">
+            <input id="filtro-data-inicio" type="date" aria-label="Data inicial">
+            <input id="filtro-data-fim" type="date" aria-label="Data final">
+          </span>
+        </label>
+
+      </section>
+
+      <section class="os-graficos" aria-label="Indicadores de OS">
+        <article class="os-card">
+          <h2>Situação das OS</h2>
+          <div class="os-chart os-chart-horizontal">
+            <canvas id="grafico-situacao" aria-label="Gráfico da situação das OS"></canvas>
+          </div>
+        </article>
+
+        <article class="os-card">
+          <h2>Quantidade de KM contratado por situação de OS</h2>
+          <div class="os-chart">
+            <canvas id="grafico-km-situacao" aria-label="KM contratado por situação"></canvas>
+          </div>
+        </article>
+
+        <article class="os-card">
+          <h2>Quantidade de OS aberta por polo</h2>
+          <div class="os-chart os-chart-pizza">
+            <canvas id="grafico-os-polo" aria-label="OS abertas por polo"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="os-tabela-card" aria-label="Detalhamento das OS">
+        <div class="os-tabela-wrapper">
+          <table class="os-tabela">
+            <thead>
+              <tr>
+                <th>OS</th>
+                <th>Polo</th>
+                <th>KM contratado</th>
+                <th>KM produzido</th>
+                <th>% executado</th>
+                <th>% falta</th>
+                <th>Situação OS</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela-os">
+              <tr><td colspan="7">Aguardando carregamento dos dados...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="os-atualizacao" id="os-atualizacao"></p>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <script src="js/loginapi.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/tratamento.js"></script>
+  <script src="js/os.js"></script>
+</body>
+
+</html>

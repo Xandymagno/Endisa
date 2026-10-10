@@ -84,9 +84,57 @@ function buscarDadosDashboard() {
 }
 
 /**
+ * Busca os registros completos da aba GERAL.
+ * @returns {Promise<Array<Object>>} Lista de registros da aba GERAL
+ */
+function buscarDadosGeral() {
+  return buscarDados("listar_geral");
+}
+
+/**
+ * Busca dados das abas de checklist na planilha APR.
+ * @param {string} action - encarregados, checkDiario, checkSemanal ou justAusencia
+ * @returns {Promise<Array<Object>>} Registros retornados pela aba solicitada
+ */
+async function buscarDadosChecklist(action) {
+  const actionsPermitidas = ["encarregados", "checkDiario", "checkSemanal", "justAusencia"];
+  if (!actionsPermitidas.includes(action)) {
+    throw new Error("Ação de checklist inválida.");
+  }
+
+  const url = new URL(APP_SCRIPT_URL);
+  url.searchParams.set("action", action);
+  url.searchParams.set("token", API_TOKEN);
+
+  try {
+    const resposta = await fetch(url.toString(), { method: "GET", redirect: "follow" });
+    if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+
+    const dados = await resposta.json();
+    if (!dados.success) throw new Error(dados.error || "Erro ao consultar os dados de checklist.");
+    if (!Array.isArray(dados.colunas) || !Array.isArray(dados.linhas)) {
+      throw new Error("A API de checklist retornou um formato inesperado.");
+    }
+
+    return dados.linhas.map(function (linha) {
+      const registro = {};
+      dados.colunas.forEach(function (coluna, indice) {
+        registro[coluna] = linha[indice] === undefined ? "" : linha[indice];
+      });
+      return registro;
+    });
+  } catch (erro) {
+    console.error("[api.js] Falha ao buscar checklist " + action + ":", erro.message);
+    throw erro;
+  }
+}
+
+/**
  * Expõe as funções globalmente para app.js e charts.js
  */
 window.API = {
   buscarDados,
-  buscarDadosDashboard
+  buscarDadosDashboard,
+  buscarDadosGeral,
+  buscarDadosChecklist
 };

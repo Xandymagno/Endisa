@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Definir Senha — Dashboard Endisa</title>
+  <style>
+    /* ===== DEFINIR SENHA — DASHBOARD ENDISA ===== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d2b45 0%, #1a4d7a 100%);
+      padding: 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      padding: 40px 32px;
+    }
+
+    /* --- Marca --- */
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand h1 {
+      color: #0d2b45;
+      font-size: 1.8rem;
+      letter-spacing: 3px;
+      font-weight: 800;
+    }
+
+    .brand p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    /* --- Campos --- */
+    .campo {
+      margin-bottom: 18px;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0d2b45;
+      margin-bottom: 6px;
+    }
+
+    .campo input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .campo input:focus {
+      border-color: #1a4d7a;
+      box-shadow: 0 0 0 3px rgba(26, 77, 122, 0.15);
+    }
+
+    /* --- Mensagens --- */
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-bottom: 16px;
+    }
+
+    .msg-erro {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+
+    .msg-sucesso {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    /* --- Botão --- */
+    .btn-salvar {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0d2b45, #1a4d7a);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-salvar:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .btn-salvar:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-salvar:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* --- Rodapé --- */
+    .rodape {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 0.88rem;
+    }
+
+    .rodape a {
+      color: #1a4d7a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .rodape a:hover {
+      text-decoration: underline;
+    }
+
+    /* --- Mobile --- */
+    @media (max-width: 420px) {
+      .card { padding: 32px 22px; }
+      .brand h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <h1>ENDISA</h1>
+      <p>Definir senha de acesso</p>
+    </div>
+
+    <form id="form-definir-senha">
+      <div class="campo">
+        <label for="campo-usuario">Usuário</label>
+        <input type="text" id="campo-usuario" required autocomplete="username">
+      </div>
+
+      <div class="campo">
+        <label for="campo-senha">Nova senha</label>
+        <input type="password" id="campo-senha" required minlength="4" autocomplete="new-password">
+      </div>
+
+      <div class="campo">
+        <label for="campo-senha2">Confirmar senha</label>
+        <input type="password" id="campo-senha2" required autocomplete="new-password">
+      </div>
+
+      <div id="msg-erro" class="msg msg-erro" hidden></div>
+      <div id="msg-sucesso" class="msg msg-sucesso" hidden></div>
+
+      <button type="submit" id="btn-salvar" class="btn-salvar">Salvar senha</button>
+    </form>
+
+    <p class="rodape"><a href="index.html">← Voltar ao login</a></p>
+  </div>
+
+  <!-- Reaproveita a camada de autenticação que já existe -->
+  <script src="js/loginapi.js"></script>
+  <script src="js/definir-senha.js"></script>
+</body>
+</html>

@@ -1,66 +1,83 @@
-/**
- * SIDEBAR — navegação + acesso do usuário
- * Estado recolhido fica no <body>: sidebar e conteúdo andam juntos.
- */
+/* js/sidebar.js — monta o sidebar em todas as páginas + comportamento */
 (function () {
+  const PAGINA_ATUAL = location.pathname.split("/").pop() || "dashboard.html";
+
+  const LINKS = [
+    { href: "dashboard.html", icone: "📊", texto: "Dashboard" },
+    { href: "os.html",        icone: "📋", texto: "OS" },
+    { href: "check-list.html", icone: "✅", texto: "Check-list" },
+    { href: "admin.html",     icone: "👥", texto: "Usuários", soAdmin: true }
+    // ← adicione novos itens aqui conforme o menu cresce
+  ];
+
   const usuario = LoginAPI.usuarioLogado();
-  const inicial = usuario ? usuario.usuario.charAt(0).toUpperCase() : "?";
+  const isAdmin = usuario && String(usuario.nivel).toLowerCase() === "adm";
+  const inicial = usuario ? String(usuario.usuario).charAt(0).toUpperCase() : "—";
 
-  // Preenche o usuário na sidebar e no cabeçalho
-  document.getElementById("sidebar-avatar").textContent = inicial;
-  document.getElementById("sidebar-nome").textContent =
-    usuario ? usuario.usuario : "—";
-  document.getElementById("cabecalho-nome").textContent =
-    usuario ? usuario.usuario : "—";
-  document.getElementById("cabecalho-nivel").textContent =
-    usuario ? usuario.nivel : "—";
+  const links = LINKS
+    .filter(function (l) { return !l.soAdmin || isAdmin; }) // Usuários: só adm
+    .map(function (l) {
+      const ativo = l.href === PAGINA_ATUAL ? " ativo" : "";
+      return '<a href="' + l.href + '" class="sidebar-link' + ativo + '" data-titulo="' + l.texto + '">' +
+             '<span class="sidebar-icone">' + l.icone + '</span>' +
+             '<span class="sidebar-texto">' + l.texto + '</span></a>';
+    })
+    .join("");
 
-  // Link "Usuários" só aparece para admin
-  if (usuario && String(usuario.nivel).toLowerCase() === "adm") {
-    document.getElementById("link-admin").hidden = false;
-  }
+  const html =
+    '<aside class="sidebar" id="sidebar">' +
+      '<div class="sidebar-marca">' +
+        '<img src="assets/img/logo_nome.png" alt="ENDISA" class="sidebar-logo">' +
+        '<button type="button" class="sidebar-toggle" id="btn-toggle">«</button>' +
+      '</div>' +
+      '<nav class="sidebar-nav">' + links + '</nav>' +
+      '<div class="sidebar-rodape">' +
+        '<div class="sidebar-usuario">' +
+          '<div class="sidebar-avatar">' + inicial + '</div>' +
+          '<div class="sidebar-nome">' + (usuario ? usuario.usuario : "—") + '</div>' +
+        '</div>' +
+        '<button type="button" class="sidebar-sair" id="btn-sair">Sair</button>' +
+      '</div>' +
+    '</aside>' +
+    '<div class="sidebar-fundo" id="sidebar-fundo"></div>';
 
-  // Gaveta no mobile
+  document.body.insertAdjacentHTML("afterbegin", html);
+
+  // ---------- Comportamento (agora os elementos EXISTEM) ----------
+
+  // Recolher / expandir — UMA classe no body controla tudo
+  const btnToggle = document.getElementById("btn-toggle");
+  btnToggle.addEventListener("click", function () {
+    document.body.classList.toggle("sidebar-recolhida");
+    btnToggle.title = document.body.classList.contains("sidebar-recolhida")
+      ? "Expandir menu" : "Recolher menu";
+  });
+
+  // Gaveta no mobile — o ☰ fica no cabeçalho de cada página
   const sidebar = document.getElementById("sidebar");
   const fundo   = document.getElementById("sidebar-fundo");
+  const btnMenu = document.getElementById("btn-menu");
 
   function fechar() {
     sidebar.classList.remove("aberta");
     fundo.classList.remove("aberto");
   }
 
-  document.getElementById("btn-menu").addEventListener("click", function () {
-    sidebar.classList.toggle("aberta");
-    fundo.classList.toggle("aberto");
-  });
-  fundo.addEventListener("click", fechar);
-
-  // Link ativo ao clicar
-  document.querySelectorAll(".sidebar-link").forEach(function (link) {
-    link.addEventListener("click", function () {
-      document.querySelectorAll(".sidebar-link").forEach(function (l) {
-        l.classList.remove("ativo");
-      });
-      link.classList.add("ativo");
-      fechar();
-    });
-  });
-
-  // Recolher / expandir — UMA classe no body controla tudo
-  const btnToggle = document.getElementById("btn-toggle");
-  if (btnToggle) {
-    btnToggle.addEventListener("click", function () {
-      document.body.classList.toggle("sidebar-recolhida");
-      btnToggle.title = document.body.classList.contains("sidebar-recolhida")
-        ? "Expandir menu" : "Recolher menu";
+  if (btnMenu) {
+    btnMenu.addEventListener("click", function () {
+      sidebar.classList.toggle("aberta");
+      fundo.classList.toggle("aberto");
     });
   }
+  fundo.addEventListener("click", fechar);
 
-  // Sair (sidebar e cabeçalho)
-  ["btn-sair-sidebar", "btn-sair-topo"].forEach(function (id) {
-    const botao = document.getElementById(id);
-    if (botao) botao.addEventListener("click", function () {
-      LoginAPI.sair();
-    });
+  // Fechar a gaveta ao navegar
+  document.querySelectorAll(".sidebar-link").forEach(function (link) {
+    link.addEventListener("click", fechar);
+  });
+
+  // Sair
+  document.getElementById("btn-sair").addEventListener("click", function () {
+    LoginAPI.sair();
   });
 })();

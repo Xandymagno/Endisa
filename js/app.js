@@ -29,9 +29,33 @@ let dadosValidos = [];
 // Instâncias dos gráficos (para destruir/recriar ao filtrar)
 let graficos = {};
 
+const COLUNAS_SERVICO = ["Servico", "Serviço", "TipoServico", "Tipo"];
+
+function valorServico(r) {
+  const equipe = String(r["Equipe"] || "").trim().toUpperCase();         // coluna J
+  const limpeza = String(r["TipodaLimpeza"] || "").trim().toUpperCase(); // coluna M
+
+  if (equipe === "MECANIZADA" && limpeza === "DENSA") return "Mecanizada Densa";
+  if (equipe === "MECANIZADA" && limpeza === "RALA")  return "Mecanizada Leve";
+  if (equipe === "MANUAL"     && limpeza === "DENSA") return "Manual Densa";
+  if (equipe === "MANUAL"     && limpeza === "RALA")  return "Manual Leve";
+
+  // Serviço Adicional (coluna N) entra como categoria própria
+  if (String(r["Serviços Adicionais"] || "").trim()) return "Serviço Adicional";
+
+  return ""; // sem tipo definido → fora das opções do filtro
+}
+
+function valoresUnicosDe(registros, extrator) {
+  const conjunto = new Set(registros.map(extrator).filter(v => v !== ""));
+  return Array.from(conjunto).sort();
+}
+
+
 /**
  * Inicia o carregamento assim que a página abre
  */
+
 document.addEventListener("DOMContentLoaded", async function () {
   await carregarDados();
   document.getElementById("btn-aplicar-filtros")
@@ -60,6 +84,7 @@ async function carregarDados() {
     Multiselect.inicializar({
       os: valoresUnicos(dadosValidos, "OS"),
       encarregado: valoresUnicos(dadosValidos, "Encarregado"),
+      servico: valoresUnicosDe(dadosValidos, valorServico),
       polo: valoresUnicos(dadosValidos, "Polo")
     }, 
     aplicarFiltros);
@@ -68,6 +93,11 @@ async function carregarDados() {
     const poloUsuario = usuario ? String(usuario.polo || "").trim() : "";
     if (poloUsuario && poloUsuario.toLowerCase() !== "todos") {
       Multiselect.travar("polo", poloUsuario);
+    }
+        // 🙈 Energisa não vê o filtro de Encarregado
+    const nivelUsuario = usuario ? String(usuario.nivel || "").toLowerCase() : "";
+    if (nivelUsuario === "energisa") {
+      document.getElementById("filtro-encarregado").style.display = "none";
     }
     aplicarFiltros(); // já respeita o mês vigente pré-preenchido
     document.getElementById("footer-atualizacao").textContent =
@@ -124,6 +154,7 @@ function atualizarOpcoesFiltros() {
   Multiselect.atualizarOpcoes("os",           valoresUnicos(base(false, true,  true),  "OS"));
   Multiselect.atualizarOpcoes("encarregado",  valoresUnicos(base(true,  false, true),  "Encarregado"));
   Multiselect.atualizarOpcoes("polo",         valoresUnicos(base(true,  true,  false), "Polo"));
+  Multiselect.atualizarOpcoes("servico", valoresUnicosDe(base(true, true, true), valorServico));
 }
 
 
@@ -134,12 +165,14 @@ function atualizarOpcoesFiltros() {
 function aplicarFiltros() {
   const os = Multiselect.valores("os");
   const encarregado = Multiselect.valores("encarregado");
+  const servico = Multiselect.valores("servico");
   const polo = Multiselect.valores("polo");
   const inicio = document.getElementById("filtro-inicio").value;
   const fim = document.getElementById("filtro-fim").value;
   const filtrados = dadosValidos.filter(function (r) {
     if (os.length && !os.includes(String(r["OS"]).trim())) return false;
     if (encarregado.length && !encarregado.includes(String(r["Encarregado"]).trim())) return false;
+    if (servico.length && !servico.includes(valorServico(r))) return false;
     if (polo.length && !polo.includes(String(r["Polo"]).trim())) return false;
     // Período: converte a data do registro e compara com o intervalo
     if (inicio || fim) {
