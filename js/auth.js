@@ -1,15 +1,21 @@
 /**
- * AUTH — PROTEGE O DASHBOARD (usa LoginAPI)
+ * Protege páginas autenticadas e restringe telas por nível de acesso.
  */
-const Sessao = LoginAPI.usuarioLogado();
-
 (async function protegerPagina() {
-  const valida = await LoginAPI.sessaoValida();
-  if (!valida) LoginAPI.sair();
+  const pagina = window.location.pathname.split("/").pop().toLowerCase();
+  if (LoginAPI._estaNoLogin()) return;
+
+  document.documentElement.style.visibility = "hidden";
+  const valida = await LoginAPI.protegerPagina();
+  if (!valida) return;
+
+  const usuario = LoginAPI.usuarioLogado();
+  const nivel = usuario ? String(usuario.nivel || "").trim().toLowerCase() : "";
+  const telasClienteAdm = ["os.html", "check-list.html", "apr.html"];
+  if (telasClienteAdm.includes(pagina) && !["cliente", "adm"].includes(nivel)) {
+    window.location.replace("dashboard.html");
+    return;
+  }
+
+  document.documentElement.style.visibility = "";
 })();
-
-
-/**
- * AUTH — protege o dashboard usando a LoginAPI
- */
-LoginAPI.protegerPagina();

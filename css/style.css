@@ -166,20 +166,24 @@ body {
    FILTROS
    ============================================ */
 .filtros {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
   gap: 12px;
   background: var(--cor-branco);
   border-radius: var(--raio-borda);
   box-shadow: var(--sombra);
   padding: 16px;
   margin-bottom: var(--espaco);
+  width: 100%;
 }
 
 .filtros__item {
   display: flex;
+  flex: 1 1 180px;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
   font-size: 0.875rem;
   color: var(--cor-texto-suave);
 }
@@ -187,6 +191,7 @@ body {
 /* Período: os dois campos de data no mesmo label */
 .filtros__item--periodo {
   display: flex;
+  flex: 2 1 320px;
   flex-direction: column;
   gap: 4px;
 }
@@ -212,12 +217,26 @@ body {
 /* Desktop/tablet: 6 colunas — OS | Encarregado | Serviço | Polo | Período | Aplicar */
 @media (min-width: 640px) {
   .filtros {
-    grid-template-columns: 1fr 1.2fr 1fr 1fr 1.8fr auto;
-    align-items: end;
+    flex-wrap: nowrap;
+  }
+  .filtros__item {
+    flex: 1 1 0;
+  }
+  .filtros__item--periodo {
+    flex: 1.8 1 0;
   }
   .filtros__periodo-campos input[type="date"] {
     padding: 8px 6px; /* reduz o espaço interno para caber "data até data" */
     font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .filtros__item {
+    flex: 1 1 calc(50% - 12px);
+  }
+  .filtros__item--periodo {
+    flex-basis: 100%;
   }
 }
 
@@ -601,7 +620,7 @@ thead th:last-child { text-align: right; }
 .multiselect {
   position: relative;
   width: 100%;
-  min-width: 180px;
+  min-width: 0;
 }
 
 .ms-toggle {
@@ -926,4 +945,3 @@ body.sidebar-recolhida .sidebar-link:hover::after {
   .cabecalho-nivel { display: none; }
   /* o .conteudo continua flex: 1 — ocupa a tela toda sozinho */
 }
-

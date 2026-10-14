@@ -92,12 +92,12 @@ function buscarDadosGeral() {
 }
 
 /**
- * Busca dados das abas de checklist na planilha APR.
- * @param {string} action - encarregados, checkDiario, checkSemanal ou justAusencia
+ * Busca dados das abas de checklist e APR na planilha APR.
+ * @param {string} action - Nome da aba autorizada na API
  * @returns {Promise<Array<Object>>} Registros retornados pela aba solicitada
  */
-async function buscarDadosChecklist(action) {
-  const actionsPermitidas = ["encarregados", "checkDiario", "checkSemanal", "justAusencia"];
+async function consultarAbaChecklist(action) {
+  const actionsPermitidas = ["encarregados", "checkDiario", "checkSemanal", "justAusencia", "listar_apr"];
   if (!actionsPermitidas.includes(action)) {
     throw new Error("Ação de checklist inválida.");
   }
@@ -115,16 +115,168 @@ async function buscarDadosChecklist(action) {
     if (!Array.isArray(dados.colunas) || !Array.isArray(dados.linhas)) {
       throw new Error("A API de checklist retornou um formato inesperado.");
     }
-
-    return dados.linhas.map(function (linha) {
-      const registro = {};
-      dados.colunas.forEach(function (coluna, indice) {
-        registro[coluna] = linha[indice] === undefined ? "" : linha[indice];
-      });
-      return registro;
-    });
+    return dados;
   } catch (erro) {
     console.error("[api.js] Falha ao buscar checklist " + action + ":", erro.message);
+    throw erro;
+  }
+}
+
+function mapearLinhasChecklist(dados) {
+  return dados.linhas.map(function (linha) {
+    const registro = {};
+    dados.colunas.forEach(function (coluna, indice) {
+      registro[coluna] = linha[indice] === undefined ? "" : linha[indice];
+    });
+    return registro;
+  });
+}
+
+async function buscarDadosChecklist(action) {
+  return mapearLinhasChecklist(await consultarAbaChecklist(action));
+}
+
+async function buscarDadosAPR() {
+  const dados = await consultarAbaChecklist("listar_apr");
+  return {
+    colunas: dados.colunas,
+    registros: mapearLinhasChecklist(dados)
+  };
+}
+
+/**
+ * Busca a lista de motivos configurados na aba CONFIG_AUSENCIA.
+ * @returns {Promise<string[]>} Motivos disponíveis
+ */
+async function buscarMotivosAusenciaChecklist() {
+  const url = new URL(APP_SCRIPT_URL);
+  url.searchParams.set("action", "motivosAusencia");
+  url.searchParams.set("token", API_TOKEN);
+
+  try {
+    const resposta = await fetch(url.toString(), { method: "GET", redirect: "follow" });
+    if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+    const dados = await resposta.json();
+    if (!dados.success) throw new Error(dados.error || "Erro ao consultar os motivos de ausência.");
+    if (!Array.isArray(dados.motivos)) throw new Error("A API retornou uma lista de motivos inválida.");
+    return dados.motivos;
+  } catch (erro) {
+    console.error("[api.js] Falha ao buscar motivos de ausência:", erro.message);
+    throw erro;
+  }
+}
+
+/**
+ * Lista justificativas cadastradas para permitir sua remoção.
+ * @returns {Promise<Object[]>} Justificativas cadastradas
+ */
+async function listarJustificativasChecklist() {
+  const url = new URL(APP_SCRIPT_URL);
+  url.searchParams.set("action", "listarJustificativas");
+  url.searchParams.set("token", API_TOKEN);
+
+  try {
+    const resposta = await fetch(url.toString(), { method: "GET", redirect: "follow" });
+    if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+    const dados = await resposta.json();
+    if (!dados.success) throw new Error(dados.error || "Erro ao consultar as justificativas.");
+    if (!Array.isArray(dados.justificativas)) {
+      throw new Error("A API retornou uma lista de justificativas inválida.");
+    }
+    return dados.justificativas;
+  } catch (erro) {
+    console.error("[api.js] Falha ao listar justificativas:", erro.message);
+    throw erro;
+  }
+}
+
+/**
+ * Exclui uma justificativa pelo identificador persistido.
+ * @param {string} id
+ * @returns {Promise<Object>} Resultado da exclusão
+ */
+async function excluirJustificativaChecklist(id) {
+  const parametros = new URLSearchParams({
+    action: "excluir_justificativa",
+    token: API_TOKEN,
+    id: id
+  });
+  try {
+    const resposta = await fetch(APP_SCRIPT_URL, {
+      method: "POST",
+      body: parametros,
+      redirect: "follow"
+    });
+    if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+    const dados = await resposta.json();
+    if (!dados.success) throw new Error(dados.error || "Erro ao excluir a justificativa.");
+    return dados;
+  } catch (erro) {
+    console.error("[api.js] Falha ao excluir justificativa:", erro.message);
+    throw erro;
+  }
+}
+
+/**
+ * Registra uma justificativa global na aba JUST_AUSENCIA.
+ * @param {{dataInicio: string, dataFim: string, motivo: string}} justificativa
+ * @returns {Promise<Object>} Resultado do cadastro
+ */
+async function cadastrarJustificativaChecklist(justificativa) {
+  const parametros = new URLSearchParams({
+    action: "cadastrar_justificativa",
+    token: API_TOKEN,
+    data_inicio: justificativa.dataInicio,
+    data_fim: justificativa.dataFim,
+    justificativa: justificativa.motivo,
+    escopo: justificativa.escopo,
+    colaboradores: JSON.stringify(justificativa.colaboradores),
+    aplicacao: justificativa.aplicacao,
+    quantidade_apr: justificativa.quantidadeApr || ""
+  });
+
+  try {
+    const resposta = await fetch(APP_SCRIPT_URL, {
+      method: "POST",
+      body: parametros,
+      redirect: "follow"
+    });
+    if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+
+    const dados = await resposta.json();
+    if (!dados.success) throw new Error(dados.error || "Erro ao cadastrar a justificativa.");
+    return dados;
+  } catch (erro) {
+    console.error("[api.js] Falha ao cadastrar justificativa:", erro.message);
+    throw erro;
+  }
+}
+
+/**
+ * Cadastra um novo motivo na aba CONFIG_AUSENCIA.
+ * @param {string} motivo
+ * @returns {Promise<Object>} Resultado do cadastro
+ */
+async function cadastrarMotivoAusenciaChecklist(motivo) {
+  const parametros = new URLSearchParams({
+    action: "cadastrar_motivo_ausencia",
+    token: API_TOKEN,
+    motivo: motivo
+  });
+
+  try {
+    const resposta = await fetch(APP_SCRIPT_URL, {
+      method: "POST",
+      body: parametros,
+      redirect: "follow"
+    });
+    if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+
+    const dados = await resposta.json();
+    if (!dados.success) throw new Error(dados.error || "Erro ao cadastrar o motivo.");
+    return dados;
+  } catch (erro) {
+    console.error("[api.js] Falha ao cadastrar motivo:", erro.message);
     throw erro;
   }
 }
@@ -136,5 +288,11 @@ window.API = {
   buscarDados,
   buscarDadosDashboard,
   buscarDadosGeral,
-  buscarDadosChecklist
+  buscarDadosChecklist,
+  buscarDadosAPR,
+  buscarMotivosAusenciaChecklist,
+  cadastrarJustificativaChecklist,
+  cadastrarMotivoAusenciaChecklist,
+  listarJustificativasChecklist,
+  excluirJustificativaChecklist
 };

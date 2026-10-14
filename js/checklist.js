@@ -219,6 +219,8 @@
   function mapaAusencias(registros) {
     const mapa = new Map();
     registros.forEach(function (registro) {
+      const aplicacao = normalizarTexto(valorCampo(registro, ["APLICACAO", "APLICA EM", "TIPO DE DISPENSA"]));
+      if (aplicacao && aplicacao !== "CHECKLIST" && aplicacao !== "AMBOS") return;
       const id = matricula(registro);
       if (!id) return;
       const inicioRaw = valorCampo(registro, [
@@ -280,7 +282,10 @@
     const fim = fimContrato < fimPeriodo ? fimContrato : fimPeriodo;
     const diariasFeitas = checksDiarios.get(funcionario.id) || new Map();
     const semanaisFeitos = checksSemanais.get(funcionario.id) || new Map();
-    const justificativas = ausencias.get(funcionario.id) || new Map();
+    const justificativas = new Map(ausencias.get("TODOS") || []);
+    (ausencias.get(funcionario.id) || new Map()).forEach(function (motivo, dia) {
+      justificativas.set(dia, motivo);
+    });
     const diasDetalhe = [];
     const semanasDetalhe = [];
     let previstoBruto = 0;
@@ -555,20 +560,23 @@
     registros.forEach(function (registro) {
       registro.diarias.forEach(function (dia) {
         if (!porDia.has(dia.data)) {
-          porDia.set(dia.data, { previsto: 0, realizados: 0, justificados: 0 });
+          porDia.set(dia.data, { previsto: 0, realizados: 0, justificados: 0, motivos: new Set() });
         }
         const totais = porDia.get(dia.data);
-        totais.previsto++;
+        if (dia.status.status !== ESTADOS.JUSTIFICADO) totais.previsto++;
         if (dia.status.status === ESTADOS.REALIZADO ||
             dia.status.status === ESTADOS.DISPENSADO) totais.realizados++;
-        if (dia.status.status === ESTADOS.JUSTIFICADO) totais.justificados++;
+        if (dia.status.status === ESTADOS.JUSTIFICADO) {
+          totais.justificados++;
+          if (dia.status.motivo) totais.motivos.add(dia.status.motivo);
+        }
       });
     });
 
     const datas = datasEntre(inicio, fim).filter(ehDiaUtil);
     const labels = datas.map(function (dia) { return formatarData(dia); });
     const valores = datas.map(function (dia) {
-      return porDia.get(dia) || { previsto: 0, realizados: 0, justificados: 0 };
+      return porDia.get(dia) || { previsto: 0, realizados: 0, justificados: 0, motivos: new Set() };
     });
     if (grafico) grafico.destroy();
     const canvas = document.getElementById("grafico-checklist");
@@ -582,9 +590,32 @@
       data: {
         labels: labels,
         datasets: [
-          { label: "Previstos", data: valores.map(function (valor) { return valor.previsto; }), backgroundColor: "#a5b4fc" },
-          { label: "Realizados", data: valores.map(function (valor) { return valor.realizados; }), backgroundColor: "#2563eb" },
-          { label: "Justificados", data: valores.map(function (valor) { return valor.justificados; }), backgroundColor: "#fbbf24" }
+          {
+            type: "bar",
+            label: "Realizados",
+            data: valores.map(function (valor) { return valor.realizados; }),
+            backgroundColor: "#2563eb",
+            stack: "realizados-justificados"
+          },
+          {
+            type: "bar",
+            label: "Justificados",
+            data: valores.map(function (valor) { return valor.justificados; }),
+            backgroundColor: "#fbbf24",
+            stack: "realizados-justificados"
+          },
+          {
+            type: "line",
+            label: "Previsto",
+            data: valores.map(function (valor) { return valor.previsto; }),
+            borderColor: "#6366f1",
+            backgroundColor: "#6366f1",
+            pointBackgroundColor: "#6366f1",
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.25,
+            stack: "previstos"
+          }
         ]
       },
       options: {
@@ -593,15 +624,25 @@
         interaction: { mode: "index", intersect: false },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: true }
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              afterBody: function (itens) {
+                if (!itens.length) return [];
+                const motivos = Array.from(valores[itens[0].dataIndex].motivos);
+                return motivos.length ? ["Justificativa(s): " + motivos.join("; ")] : [];
+              }
+            }
+          }
         },
         scales: {
           x: {
-            stacked: false,
+            stacked: true,
             grid: { display: false },
             ticks: { autoSkip: true, maxTicksLimit: 20, maxRotation: 0 }
           },
           y: {
+            stacked: true,
             beginAtZero: true,
             ticks: { precision: 0 },
             title: { display: true, text: "Quantidade de check-lists" }
@@ -658,6 +699,7 @@
     try {
       dados = await carregarDados(forcarAtualizacao);
       renderizar();
+      return true;
     } catch (erro) {
       console.error("[checklist.js] Falha ao inicializar a tela:", erro);
       exibirMensagem(
@@ -671,6 +713,7 @@
       const celula = linha.insertCell();
       celula.colSpan = 8;
       celula.textContent = "Os dados não foram carregados.";
+      return false;
     } finally {
       botaoAtualizar.disabled = false;
       botaoAplicar.disabled = false;
@@ -695,6 +738,255 @@
     });
     document.getElementById("btn-atualizar").addEventListener("click", function () {
       inicializar(true);
+    });
+    const dialogoJustificativa = document.getElementById("dialogo-justificativa");
+    const formularioJustificativa = document.getElementById("form-justificativa");
+    const motivoJustificativa = document.getElementById("justificativa-motivo");
+    const novoMotivoControles = document.getElementById("novo-motivo-controles");
+    const novoMotivoCampo = document.getElementById("novo-motivo");
+    const dataInicioJustificativa = document.getElementById("justificativa-data-inicio");
+    const dataFimJustificativa = document.getElementById("justificativa-data-fim");
+    const escopoJustificativa = document.getElementById("justificativa-escopo");
+    const aplicacaoJustificativa = document.getElementById("justificativa-aplicacao");
+    const selecaoColaboradores = document.getElementById("selecao-colaboradores");
+    const listaColaboradores = document.getElementById("lista-colaboradores");
+    const botaoSalvarJustificativa = document.getElementById("btn-salvar-justificativa");
+    const mensagemJustificativa = document.getElementById("justificativa-mensagem");
+    const listaJustificativas = document.getElementById("lista-justificativas");
+    const selecionadosColaboradores = function () {
+      return Array.from(listaColaboradores.querySelectorAll("input:checked")).map(function (checkbox) {
+        return checkbox.value;
+      });
+    };
+    const renderizarColaboradores = function (encarregados) {
+      listaColaboradores.replaceChildren();
+      encarregados.slice().sort(function (a, b) {
+        return a.nome.localeCompare(b.nome, "pt-BR");
+      }).forEach(function (colaborador) {
+        const opcao = document.createElement("label");
+        opcao.className = "checklist-colaborador-opcao";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = colaborador.id;
+        checkbox.addEventListener("change", function () {
+          if (escopoJustificativa.value === "UM" && checkbox.checked) {
+            listaColaboradores.querySelectorAll("input:checked").forEach(function (selecionado) {
+              if (selecionado !== checkbox) selecionado.checked = false;
+            });
+          }
+        });
+        const nomeColaborador = document.createElement("span");
+        nomeColaborador.textContent = colaborador.nome + " (" + colaborador.id + ")";
+        opcao.append(checkbox, nomeColaborador);
+        listaColaboradores.appendChild(opcao);
+      });
+    };
+    const sincronizarBotaoSalvar = function () {
+      const escopo = escopoJustificativa.value;
+      const temColaboradores = escopo === "TODOS" || selecionadosColaboradores().length > 0;
+      botaoSalvarJustificativa.disabled =
+        motivoJustificativa.disabled || !motivoJustificativa.value || !temColaboradores;
+    };
+    const carregarJustificativas = async function () {
+      listaJustificativas.replaceChildren();
+      const carregando = document.createElement("p");
+      carregando.textContent = "Carregando justificativas...";
+      listaJustificativas.appendChild(carregando);
+      try {
+        const justificativas = await API.listarJustificativasChecklist();
+        listaJustificativas.replaceChildren();
+        if (!justificativas.length) {
+          const vazio = document.createElement("p");
+          vazio.textContent = "Nenhuma justificativa cadastrada.";
+          listaJustificativas.appendChild(vazio);
+          return;
+        }
+
+        const colaboradores = new Map(
+          funcionariosEncarregados((dados && dados.encarregados) || []).map(function (colaborador) {
+            return [colaborador.id, colaborador.nome];
+          })
+        );
+        justificativas.forEach(function (justificativa) {
+          const item = document.createElement("article");
+          item.className = "checklist-justificativa-item";
+          const informacoes = document.createElement("div");
+          informacoes.className = "checklist-justificativa-info";
+          const titulo = document.createElement("strong");
+          titulo.textContent = justificativa.motivo || "Justificativa";
+          const periodo = document.createElement("span");
+          periodo.textContent = formatarData(justificativa.dataInicio) +
+            (justificativa.dataFim && justificativa.dataFim !== justificativa.dataInicio
+              ? " a " + formatarData(justificativa.dataFim)
+              : "");
+          const nomeColaborador = justificativa.colaborador === "TODOS"
+            ? "Todos os colaboradores"
+            : (colaboradores.get(justificativa.colaborador) || justificativa.colaborador);
+          const aplicacao = String(justificativa.aplicacao || "CHECKLIST").toUpperCase();
+          const destino = document.createElement("span");
+          destino.textContent = nomeColaborador + " · " +
+            (aplicacao === "AMBOS" ? "Check-list e APR" :
+              (aplicacao === "APR" ? "Somente APR" : "Somente check-list"));
+          informacoes.append(titulo, periodo, destino);
+
+          const botaoExcluir = document.createElement("button");
+          botaoExcluir.type = "button";
+          botaoExcluir.className = "checklist-btn-excluir-justificativa";
+          botaoExcluir.textContent = "Excluir";
+          botaoExcluir.addEventListener("click", async function () {
+            if (!window.confirm("Deseja excluir esta justificativa?")) return;
+            botaoExcluir.disabled = true;
+            try {
+              await API.excluirJustificativaChecklist(justificativa.id);
+              await carregarJustificativas();
+              await inicializar(true);
+            } catch (erro) {
+              console.error("[checklist.js] Falha ao excluir justificativa:", erro);
+              mensagemJustificativa.textContent = "Não foi possível excluir a justificativa. " + erro.message;
+              botaoExcluir.disabled = false;
+            }
+          });
+          item.append(informacoes, botaoExcluir);
+          listaJustificativas.appendChild(item);
+        });
+      } catch (erro) {
+        console.error("[checklist.js] Falha ao carregar justificativas:", erro);
+        listaJustificativas.replaceChildren();
+        const falha = document.createElement("p");
+        falha.textContent = "Não foi possível carregar as justificativas. " + erro.message;
+        listaJustificativas.appendChild(falha);
+      }
+    };
+    escopoJustificativa.addEventListener("change", function () {
+      selecaoColaboradores.hidden = escopoJustificativa.value === "TODOS";
+      if (escopoJustificativa.value === "UM") {
+        const selecionados = listaColaboradores.querySelectorAll("input:checked");
+        Array.from(selecionados).slice(1).forEach(function (checkbox) {
+          checkbox.checked = false;
+        });
+      }
+      sincronizarBotaoSalvar();
+    });
+    listaColaboradores.addEventListener("change", sincronizarBotaoSalvar);
+    motivoJustificativa.addEventListener("change", sincronizarBotaoSalvar);
+    document.getElementById("btn-abrir-justificativa").addEventListener("click", async function () {
+      mensagemJustificativa.textContent = "";
+      novoMotivoControles.hidden = true;
+      novoMotivoCampo.value = "";
+      escopoJustificativa.value = "TODOS";
+      selecaoColaboradores.hidden = true;
+      listaColaboradores.replaceChildren();
+      motivoJustificativa.replaceChildren(new Option("Carregando motivos...", ""));
+      motivoJustificativa.disabled = true;
+      botaoSalvarJustificativa.disabled = true;
+      dialogoJustificativa.showModal();
+      try {
+        const [motivos, dadosCarregados] = await Promise.all([
+          API.buscarMotivosAusenciaChecklist(),
+          carregarDados(false)
+        ]);
+        dados = dadosCarregados;
+        renderizarColaboradores(funcionariosEncarregados(dados.encarregados));
+        await carregarJustificativas();
+        motivoJustificativa.replaceChildren(new Option("Selecione o motivo", ""));
+        motivos.forEach(function (motivo) {
+          motivoJustificativa.add(new Option(motivo, motivo));
+        });
+        motivoJustificativa.disabled = motivos.length === 0;
+        sincronizarBotaoSalvar();
+        if (!motivos.length) {
+          mensagemJustificativa.textContent = "Nenhum motivo cadastrado na aba CONFIG_AUSENCIA.";
+        }
+      } catch (erro) {
+        console.error("[checklist.js] Falha ao carregar motivos:", erro);
+        motivoJustificativa.replaceChildren(new Option("Não foi possível carregar os motivos", ""));
+        mensagemJustificativa.textContent = "Não foi possível carregar os motivos da aba CONFIG_AUSENCIA. " + erro.message;
+      }
+    });
+    document.getElementById("btn-adicionar-motivo").addEventListener("click", function () {
+      novoMotivoControles.hidden = !novoMotivoControles.hidden;
+      if (!novoMotivoControles.hidden) novoMotivoCampo.focus();
+    });
+    document.getElementById("btn-salvar-novo-motivo").addEventListener("click", async function () {
+      const novoMotivo = novoMotivoCampo.value.trim();
+      if (!novoMotivo) {
+        mensagemJustificativa.textContent = "Digite o novo motivo.";
+        novoMotivoCampo.focus();
+        return;
+      }
+
+      const botaoAdicionarMotivo = document.getElementById("btn-salvar-novo-motivo");
+      botaoAdicionarMotivo.disabled = true;
+      mensagemJustificativa.textContent = "";
+      try {
+        await API.cadastrarMotivoAusenciaChecklist(novoMotivo);
+        const motivos = await API.buscarMotivosAusenciaChecklist();
+        motivoJustificativa.replaceChildren(new Option("Selecione o motivo", ""));
+        motivos.forEach(function (motivo) {
+          motivoJustificativa.add(new Option(motivo, motivo));
+        });
+        motivoJustificativa.value = novoMotivo;
+        motivoJustificativa.disabled = false;
+        sincronizarBotaoSalvar();
+        novoMotivoCampo.value = "";
+        novoMotivoControles.hidden = true;
+        exibirMensagem("Novo motivo cadastrado na CONFIG_AUSENCIA.", false);
+      } catch (erro) {
+        console.error("[checklist.js] Falha ao cadastrar motivo:", erro);
+        mensagemJustificativa.textContent = "Não foi possível cadastrar o motivo. " + erro.message;
+      } finally {
+        botaoAdicionarMotivo.disabled = false;
+      }
+    });
+    document.getElementById("btn-cancelar-justificativa").addEventListener("click", function () {
+      dialogoJustificativa.close();
+    });
+    dataInicioJustificativa.addEventListener("change", function () {
+      dataFimJustificativa.min = dataInicioJustificativa.value;
+    });
+    dataFimJustificativa.addEventListener("change", function () {
+      if (dataFimJustificativa.value && dataFimJustificativa.value < dataInicioJustificativa.value) {
+        mensagemJustificativa.textContent = "A data final não pode ser anterior à data inicial.";
+      } else {
+        mensagemJustificativa.textContent = "";
+      }
+    });
+    formularioJustificativa.addEventListener("submit", async function (evento) {
+      evento.preventDefault();
+      botaoSalvarJustificativa.disabled = true;
+      mensagemJustificativa.textContent = "";
+      try {
+        const escopo = escopoJustificativa.value;
+        const colaboradores = escopo === "TODOS" ? [] : selecionadosColaboradores();
+        if (escopo !== "TODOS" && !colaboradores.length) {
+          throw new Error("Selecione pelo menos um colaborador.");
+        }
+        if (escopo === "UM" && colaboradores.length !== 1) {
+          throw new Error("Selecione somente um colaborador.");
+        }
+        await API.cadastrarJustificativaChecklist({
+          dataInicio: dataInicioJustificativa.value,
+          dataFim: dataFimJustificativa.value,
+          motivo: motivoJustificativa.value,
+          escopo: escopo,
+          colaboradores: colaboradores,
+          aplicacao: aplicacaoJustificativa.value
+        });
+        formularioJustificativa.reset();
+        dialogoJustificativa.close();
+        const atualizou = await inicializar(true);
+        exibirMensagem(
+          atualizou
+            ? "Justificativa cadastrada e aplicada ao check-list."
+            : "Justificativa cadastrada, mas não foi possível atualizar o check-list. Use “Atualizar dados”.",
+          !atualizou
+        );
+      } catch (erro) {
+        console.error("[checklist.js] Falha ao cadastrar justificativa:", erro);
+        mensagemJustificativa.textContent = "Não foi possível cadastrar a justificativa. " + erro.message;
+      } finally {
+        sincronizarBotaoSalvar();
+      }
     });
     inicializar(false);
   });

@@ -58,8 +58,6 @@ function valoresUnicosDe(registros, extrator) {
 
 document.addEventListener("DOMContentLoaded", async function () {
   await carregarDados();
-  document.getElementById("btn-aplicar-filtros")
-    .addEventListener("click", aplicarFiltros);
   // Datas reagem na hora da mudança
   ["filtro-inicio", "filtro-fim"].forEach(function (id) {
     document.getElementById(id).addEventListener("change", aplicarFiltros);
@@ -94,10 +92,15 @@ async function carregarDados() {
     if (poloUsuario && poloUsuario.toLowerCase() !== "todos") {
       Multiselect.travar("polo", poloUsuario);
     }
-        // 🙈 Energisa não vê o filtro de Encarregado
-    const nivelUsuario = usuario ? String(usuario.nivel || "").toLowerCase() : "";
-    if (nivelUsuario === "energisa") {
-      document.getElementById("filtro-encarregado").style.display = "none";
+    // 🙈 Concessionária/Energisa não vê o filtro de Encarregado
+    const nivelUsuario = usuario ? String(usuario.nivel || "").trim().toLowerCase() : "";
+    if (["energisa", "concessionaria", "concessionária"].includes(nivelUsuario)) {
+      const filtroEncarregado = document.querySelector(
+        '.multiselect[data-filtro="encarregado"]'
+      );
+      if (filtroEncarregado) {
+        filtroEncarregado.closest(".filtros__item").style.display = "none";
+      }
     }
     aplicarFiltros(); // já respeita o mês vigente pré-preenchido
     document.getElementById("footer-atualizacao").textContent =

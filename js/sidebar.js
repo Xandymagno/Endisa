@@ -4,18 +4,21 @@
 
   const LINKS = [
     { href: "dashboard.html", icone: "📊", texto: "Dashboard" },
-    { href: "os.html",        icone: "📋", texto: "OS" },
-    { href: "check-list.html", icone: "✅", texto: "Check-list" },
-    { href: "admin.html",     icone: "👥", texto: "Usuários", soAdmin: true }
+    { href: "os.html",        icone: "📋", texto: "OS", niveis: ["adm", "cliente"] },
+    { href: "check-list.html", icone: "✅", texto: "Check-list", niveis: ["adm", "cliente"] },
+    { href: "apr.html",       icone: "📝", texto: "APR", niveis: ["adm", "cliente"] },
+    { href: "admin.html",     icone: "👥", texto: "Usuários", niveis: ["adm"] }
     // ← adicione novos itens aqui conforme o menu cresce
   ];
 
   const usuario = LoginAPI.usuarioLogado();
-  const isAdmin = usuario && String(usuario.nivel).toLowerCase() === "adm";
+  const nivelUsuario = usuario ? String(usuario.nivel || "").trim().toLowerCase() : "";
   const inicial = usuario ? String(usuario.usuario).charAt(0).toUpperCase() : "—";
 
   const links = LINKS
-    .filter(function (l) { return !l.soAdmin || isAdmin; }) // Usuários: só adm
+    .filter(function (link) {
+      return !link.niveis || link.niveis.includes(nivelUsuario);
+    })
     .map(function (l) {
       const ativo = l.href === PAGINA_ATUAL ? " ativo" : "";
       return '<a href="' + l.href + '" class="sidebar-link' + ativo + '" data-titulo="' + l.texto + '">' +

@@ -17,8 +17,74 @@
           <h1>Check-list dos encarregados</h1>
           <p>Compare os registros previstos e realizados no período.</p>
         </div>
-        <button type="button" class="btn" id="btn-atualizar">Atualizar dados</button>
+        <div class="checklist-cabecalho-acoes">
+          <button type="button" class="btn" id="btn-abrir-justificativa">Cadastrar justificativa</button>
+          <button type="button" class="btn" id="btn-atualizar">Atualizar dados</button>
+        </div>
       </header>
+
+      <dialog class="checklist-dialogo" id="dialogo-justificativa" aria-labelledby="titulo-justificativa">
+        <form id="form-justificativa" class="checklist-form-justificativa">
+          <h2 id="titulo-justificativa">Cadastrar justificativa</h2>
+          <p>A justificativa selecionada será aplicada aos check-lists de todos os encarregados no período informado.</p>
+          <label class="checklist-campo">
+            <span>Data inicial</span>
+            <input type="date" id="justificativa-data-inicio" required>
+          </label>
+          <label class="checklist-campo">
+            <span>Data final (opcional)</span>
+            <input type="date" id="justificativa-data-fim">
+          </label>
+          <label class="checklist-campo">
+            <span>Aplicar para</span>
+            <select id="justificativa-escopo" required>
+              <option value="TODOS">Todos os colaboradores</option>
+              <option value="UM">Um colaborador</option>
+              <option value="LISTA">Uma lista de colaboradores</option>
+            </select>
+          </label>
+          <div class="checklist-selecao-colaboradores" id="selecao-colaboradores" hidden>
+            <span class="checklist-campo-rotulo">Selecione os colaboradores</span>
+            <div class="checklist-lista-colaboradores" id="lista-colaboradores"></div>
+          </div>
+          <label class="checklist-campo">
+            <span>Dispensar</span>
+            <select id="justificativa-aplicacao" required>
+              <option value="CHECKLIST">Somente check-list</option>
+              <option value="APR">Somente APR</option>
+              <option value="AMBOS">Check-list e APR</option>
+            </select>
+          </label>
+          <div class="checklist-campo">
+            <span>Motivo</span>
+            <div class="checklist-motivo-controles">
+              <select id="justificativa-motivo" required disabled>
+                <option value="">Carregando motivos...</option>
+              </select>
+              <button type="button" class="checklist-btn-adicionar-motivo" id="btn-adicionar-motivo"
+                      aria-label="Cadastrar novo motivo" title="Cadastrar novo motivo">+</button>
+            </div>
+          </div>
+          <div class="checklist-novo-motivo" id="novo-motivo-controles" hidden>
+            <label class="checklist-campo" for="novo-motivo">Novo motivo</label>
+            <div class="checklist-novo-motivo-controles">
+              <input type="text" id="novo-motivo" maxlength="200" placeholder="Digite o novo motivo">
+              <button type="button" class="btn" id="btn-salvar-novo-motivo">Adicionar</button>
+            </div>
+          </div>
+          <p class="checklist-dialogo-mensagem" id="justificativa-mensagem" role="alert"></p>
+          <div class="checklist-dialogo-acoes">
+            <button type="button" class="btn checklist-btn-secundario" id="btn-cancelar-justificativa">Cancelar</button>
+            <button type="submit" class="btn" id="btn-salvar-justificativa" disabled>Salvar justificativa</button>
+          </div>
+          <section class="checklist-justificativas-existentes" aria-labelledby="titulo-justificativas-existentes">
+            <h3 id="titulo-justificativas-existentes">Justificativas cadastradas</h3>
+            <div class="checklist-lista-justificativas" id="lista-justificativas">
+              <p>Carregue as justificativas cadastradas.</p>
+            </div>
+          </section>
+        </form>
+      </dialog>
 
       <section class="checklist-filtros" aria-label="Filtros de check-list">
         <label class="checklist-campo">
@@ -63,10 +129,10 @@
         <div class="checklist-secao-titulo">
           <div>
             <h2>Check-lists no período</h2>
-            <p>Previstos e realizados por data, considerando os encarregados filtrados.</p>
+            <p>Previsto em linha e realizados com justificativas em barras, por data e encarregado.</p>
           </div>
           <div class="checklist-legenda" aria-label="Legenda do gráfico">
-            <span><i class="legenda-previsto"></i>Previstos</span>
+            <span><i class="legenda-previsto"></i>Previsto</span>
             <span><i class="legenda-realizado"></i>Realizados</span>
             <span><i class="legenda-justificado"></i>Justificados</span>
           </div>

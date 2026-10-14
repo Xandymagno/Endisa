@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Acompanhamento das APRs cadastradas">
+  <title>APR — Dashboard Endisa</title>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/checklist.css">
+  <link rel="stylesheet" href="css/apr.css">
+</head>
+<body>
+  <div class="conteudo">
+    <main class="container checklist-conteudo">
+      <header class="checklist-cabecalho">
+        <div>
+          <h1>Análise Preliminar de Risco (APR)</h1>
+          <p>Acompanhe se cada encarregado realizou as 2 APRs previstas por dia útil.</p>
+        </div>
+        <div class="checklist-cabecalho-acoes">
+          <button type="button" class="btn" id="btn-abrir-justificativa">Cadastrar justificativa</button>
+          <button type="button" class="btn" id="btn-atualizar">Atualizar dados</button>
+        </div>
+      </header>
+
+      <dialog class="checklist-dialogo" id="dialogo-justificativa" aria-labelledby="titulo-justificativa">
+        <form id="form-justificativa" class="checklist-form-justificativa">
+          <h2 id="titulo-justificativa">Cadastrar justificativa</h2>
+          <p>A justificativa será aplicada às APRs dos colaboradores e datas selecionados.</p>
+          <label class="checklist-campo">
+            <span>Data inicial</span>
+            <input type="date" id="justificativa-data-inicio" required>
+          </label>
+          <label class="checklist-campo">
+            <span>Data final (opcional)</span>
+            <input type="date" id="justificativa-data-fim">
+          </label>
+          <label class="checklist-campo">
+            <span>Aplicar para</span>
+            <select id="justificativa-escopo" required>
+              <option value="TODOS">Todos os colaboradores</option>
+              <option value="UM">Um colaborador</option>
+              <option value="LISTA">Uma lista de colaboradores</option>
+            </select>
+          </label>
+          <div class="checklist-selecao-colaboradores" id="selecao-colaboradores" hidden>
+            <span class="checklist-campo-rotulo">Selecione os colaboradores</span>
+            <div class="checklist-lista-colaboradores" id="lista-colaboradores"></div>
+          </div>
+          <label class="checklist-campo">
+            <span>Dispensar</span>
+            <select id="justificativa-aplicacao" required>
+              <option value="APR" selected>Somente APR</option>
+              <option value="CHECKLIST">Somente check-list</option>
+              <option value="AMBOS">Check-list e APR</option>
+            </select>
+          </label>
+          <label class="checklist-campo" id="quantidade-apr-controles">
+            <span>Justificar quantas APRs?</span>
+            <select id="justificativa-quantidade-apr" required>
+              <option value="2" selected>As 2 APRs do dia</option>
+              <option value="1">Somente 1 APR</option>
+            </select>
+          </label>
+          <div class="checklist-campo">
+            <span>Motivo</span>
+            <div class="checklist-motivo-controles">
+              <select id="justificativa-motivo" required disabled>
+                <option value="">Carregando motivos...</option>
+              </select>
+              <button type="button" class="checklist-btn-adicionar-motivo" id="btn-adicionar-motivo"
+                      aria-label="Cadastrar novo motivo" title="Cadastrar novo motivo">+</button>
+            </div>
+          </div>
+          <div class="checklist-novo-motivo" id="novo-motivo-controles" hidden>
+            <label class="checklist-campo" for="novo-motivo">Novo motivo</label>
+            <div class="checklist-novo-motivo-controles">
+              <input type="text" id="novo-motivo" maxlength="200" placeholder="Digite o novo motivo">
+              <button type="button" class="btn" id="btn-salvar-novo-motivo">Adicionar</button>
+            </div>
+          </div>
+          <p class="checklist-dialogo-mensagem" id="justificativa-mensagem" role="alert"></p>
+          <div class="checklist-dialogo-acoes">
+            <button type="button" class="btn checklist-btn-secundario" id="btn-cancelar-justificativa">Cancelar</button>
+            <button type="submit" class="btn" id="btn-salvar-justificativa" disabled>Salvar justificativa</button>
+          </div>
+          <section class="checklist-justificativas-existentes" aria-labelledby="titulo-justificativas-existentes">
+            <h3 id="titulo-justificativas-existentes">Justificativas cadastradas</h3>
+            <div class="checklist-lista-justificativas" id="lista-justificativas">
+              <p>Carregue as justificativas cadastradas.</p>
+            </div>
+          </section>
+        </form>
+      </dialog>
+
+      <section class="checklist-filtros" aria-label="Filtros de APR">
+        <label class="checklist-campo">
+          <span>Data inicial</span>
+          <input type="date" id="filtro-inicio">
+        </label>
+        <label class="checklist-campo">
+          <span>Data final</span>
+          <input type="date" id="filtro-fim">
+        </label>
+        <label class="checklist-campo checklist-campo-busca">
+          <span>Buscar encarregado</span>
+          <input type="search" id="filtro-busca" placeholder="Nome ou matrícula">
+        </label>
+        <button type="button" class="btn" id="btn-aplicar">Aplicar filtros</button>
+      </section>
+
+      <div class="checklist-mensagem" id="apr-mensagem" role="status" aria-live="polite">
+        Carregando dados de APR...
+      </div>
+
+      <section class="checklist-kpis apr-kpis" aria-label="Resumo das APRs">
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone" aria-hidden="true">▣</span>
+          <div><span class="checklist-kpi-rotulo">Previstas</span><strong id="kpi-apr-previstas">—</strong></div>
+        </article>
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone checklist-icone-sucesso" aria-hidden="true">✓</span>
+          <div><span class="checklist-kpi-rotulo">Realizadas</span><strong id="kpi-apr-realizadas">—</strong></div>
+        </article>
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone checklist-icone-alerta" aria-hidden="true">!</span>
+          <div><span class="checklist-kpi-rotulo">Faltando</span><strong id="kpi-apr-faltando">—</strong></div>
+        </article>
+        <article class="checklist-kpi">
+          <span class="checklist-kpi-icone checklist-icone-info" aria-hidden="true">●</span>
+          <div><span class="checklist-kpi-rotulo">Justificadas</span><strong id="kpi-apr-justificadas">—</strong></div>
+        </article>
+      </section>
+
+      <section class="checklist-grafico-card" aria-label="APRs previstas e realizadas">
+        <div class="checklist-secao-titulo">
+          <div>
+            <h2>APRs por dia</h2>
+            <p>Previstas, realizadas e justificadas por data.</p>
+          </div>
+          <div class="checklist-legenda" aria-label="Legenda do gráfico">
+            <span><i class="legenda-previsto"></i>Previstas</span>
+            <span><i class="legenda-realizado"></i>Realizadas</span>
+            <span><i class="legenda-justificado"></i>Justificadas</span>
+          </div>
+        </div>
+        <div class="checklist-grafico-wrapper">
+          <canvas id="grafico-apr" aria-label="Gráfico de APRs por dia"></canvas>
+        </div>
+      </section>
+
+      <section class="checklist-tabela-card" aria-label="Resumo de APR por encarregado">
+        <div class="checklist-tabela-scroll">
+          <table class="checklist-tabela">
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Matrícula</th>
+                <th scope="col">Período contrato</th>
+                <th scope="col">Previstas</th>
+                <th scope="col">Realizadas</th>
+                <th scope="col">Faltando</th>
+                <th scope="col">Justificadas</th>
+                <th scope="col">% Conformidade</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-apr">
+              <tr><td colspan="8">Carregando dados...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="checklist-atualizacao" id="apr-atualizacao"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/loginapi.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/api.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <script src="js/apr.js" defer></script>
+</body>
+</html>
